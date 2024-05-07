@@ -2,17 +2,20 @@
 	"name": "@dfinity/signer",
 	"version": "0.0.1",
 	"private": true,
+	"workspaces": [
+		"src/relying_party_frontend"
+	],
 	"scripts": {
-		"dev": "vite dev",
-		"build": "tsc --noEmit && vite build",
-		"preview": "vite preview",
-		"test": "npm run test:integration && npm run test:unit",
+		"dev": "npm run dev --workspaces --if-present",
+		"build": "npm run build --workspaces --if-present",
+		"preview": "npm run preview --workspaces --if-present",
+		"test": "npm run test --workspaces --if-present",
+		"test:integration": "npm run test:integration --workspaces --if-present",
+		"test:unit": "npm run test:unit --workspaces --if-present",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
-		"test:integration": "playwright test",
-		"test:unit": "vitest",
 		"generate": "scripts/did.sh && dfx generate && node scripts/did.update.types.mjs && node scripts/did.delete.types.mjs && npm run format",
 		"deploy": "scripts/deploy.sh"
 	},

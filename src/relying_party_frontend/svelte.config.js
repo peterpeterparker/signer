@@ -1,7 +1,7 @@
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
-const filesPath = (/** @type {string} */ path) => `src/relying_party_frontend/${path}`;
+const filesPath = (/** @type {string} */ path) => `${path}`;
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -9,8 +9,8 @@ const config = {
 
 	kit: {
 		adapter: adapter({
-			pages: 'build/relying_party',
-			assets: 'build/relying_party',
+			pages: 'build',
+			assets: 'build',
 			fallback: 'index.html',
 			precompress: false
 		}),
@@ -21,7 +21,7 @@ const config = {
 			appTemplate: filesPath('src/app.html')
 		},
 		alias: {
-			$declarations: './src/declarations'
+			$declarations: '../../src/declarations'
 		}
 	}
 };
