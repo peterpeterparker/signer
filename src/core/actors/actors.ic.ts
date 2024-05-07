@@ -1,8 +1,8 @@
+import { BACKEND_CANISTER_ID } from '$core/constants/app.constants';
+import type { OptionIdentity } from '$core/types/identity';
 import type { _SERVICE as BackendActor } from '$declarations/relying_party_backend/relying_party_backend.did';
 import { idlFactory as idlCertifiedFactoryBackend } from '$declarations/relying_party_backend/relying_party_backend.factory.certified.did';
 import { idlFactory as idlFactoryBackend } from '$declarations/relying_party_backend/relying_party_backend.factory.did';
-import { BACKEND_CANISTER_ID } from '$core/constants/app.constants';
-import type { OptionIdentity } from '$core/types/identity';
 import {
 	Actor,
 	AnonymousIdentity,
