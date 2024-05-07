@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "src/relying_party_backend"
+]
+resolver = "2"

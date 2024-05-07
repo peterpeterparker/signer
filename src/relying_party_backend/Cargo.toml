@@ -1,0 +1,11 @@
+[package]
+name = "relying_party_backend"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.10.8"
+ic-cdk = "0.13.2"
