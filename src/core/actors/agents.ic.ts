@@ -1,4 +1,4 @@
-import { LOCAL } from '$lib/constants/app.constants';
+import { LOCAL } from '$core/constants/app.constants';
 import type { HttpAgent, Identity } from '@dfinity/agent';
 import { createAgent as createAgentUtils, isNullish } from '@dfinity/utils';
 

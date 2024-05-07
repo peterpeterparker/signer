@@ -1,4 +1,4 @@
-import type { OptionIdentity } from '$lib/types/identity';
+import type { OptionIdentity } from '$core/types/identity';
 import { isNullish } from '@dfinity/utils';
 
 export type QueryAndUpdateOnResponse<R> = (options: { certified: boolean; response: R }) => void;

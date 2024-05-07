@@ -1,6 +1,6 @@
 <script lang="ts">
-	import '$lib/constants/app.constants';
-	import { whoAmI } from '$lib/api/backend.api';
+	import '$core/constants/app.constants';
+	import { whoAmI } from '$core/api/backend.api';
 
 	$effect(() => {
 		(async () => {
