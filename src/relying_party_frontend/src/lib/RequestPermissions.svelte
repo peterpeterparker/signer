@@ -1,9 +1,6 @@
 <script lang="ts">
 	import { popupTopRight } from '$core/utils/window.utils';
-	import {
-		WALLET_POPUP_HEIGHT,
-		WALLET_POPUP_WIDTH
-	} from '$core/constants/app.constants';
+	import { WALLET_POPUP_HEIGHT, WALLET_POPUP_WIDTH } from '$core/constants/app.constants';
 
 	let tab: WindowProxy | null | undefined;
 

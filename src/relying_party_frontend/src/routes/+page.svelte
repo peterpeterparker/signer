@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '$core/constants/app.constants';
 	import { whoAmI } from '$core/api/backend.api';
-    import RequestPermissions from "$lib/RequestPermissions.svelte";
+	import RequestPermissions from '$lib/RequestPermissions.svelte';
 
 	$effect(() => {
 		(async () => {
