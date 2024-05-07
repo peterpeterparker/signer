@@ -13,6 +13,12 @@
 			"source": ["build/relying_party/"],
 			"type": "assets"
 		},
+		"wallet_backend": {
+			"candid": "src/wallet_backend/wallet_backend.did",
+			"package": "wallet_backend",
+			"type": "rust",
+			"optimize": "cycles"
+		},
 		"internet_identity": {
 			"type": "custom",
 			"candid": "https://github.com/dfinity/internet-identity/releases/download/release-2023-11-17/internet_identity.did",

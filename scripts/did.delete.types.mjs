@@ -11,7 +11,7 @@ const deleteFolder = async (canister) => {
 };
 
 const promises = Object.keys(canisters)
-	.filter((canister) => !['relying_party_backend'].includes(canister))
+	.filter((canister) => !['relying_party_backend', 'wallet_backend'].includes(canister))
 	.map(deleteFolder);
 
 await Promise.allSettled(promises);
