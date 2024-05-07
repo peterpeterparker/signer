@@ -3,22 +3,28 @@ import { idlFactory as idlCertifiedFactoryBackend } from '$declarations/relying_
 import { idlFactory as idlFactoryBackend } from '$declarations/relying_party_backend/relying_party_backend.factory.did';
 import { BACKEND_CANISTER_ID } from '$lib/constants/app.constants';
 import type { OptionIdentity } from '$lib/types/identity';
-import { Actor, type ActorMethod, type ActorSubclass, type Identity } from '@dfinity/agent';
+import {
+	Actor,
+	AnonymousIdentity,
+	type ActorMethod,
+	type ActorSubclass,
+	type Identity
+} from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
 import type { Principal } from '@dfinity/principal';
-import { assertNonNullish, isNullish } from '@dfinity/utils';
+import { isNullish } from '@dfinity/utils';
 import { getAgent } from './agents.ic';
 
 let actors: { backend?: BackendActor } | undefined | null = undefined;
 
 export const getBackendActor = async ({
-	identity,
+	identity: actorIdentity,
 	certified = true
 }: {
 	identity: OptionIdentity;
 	certified?: boolean;
 }): Promise<BackendActor> => {
-	assertNonNullish(identity);
+	const identity = actorIdentity ?? new AnonymousIdentity();
 
 	const { backend } = actors ?? { backend: undefined };
 
