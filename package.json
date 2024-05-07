@@ -3,10 +3,12 @@
 	"version": "0.0.1",
 	"private": true,
 	"workspaces": [
-		"src/relying_party_frontend"
+		"src/relying_party_frontend",
+		"src/wallet_frontend"
 	],
 	"scripts": {
-		"dev": "npm run dev --workspaces --if-present",
+		"dev:party": "npm run dev -w src/relying_party_frontend",
+		"dev:wallet": "npm run dev -w src/wallet_frontend",
 		"build": "npm run build --workspaces --if-present",
 		"preview": "npm run preview --workspaces --if-present",
 		"test": "npm run test --workspaces --if-present",
