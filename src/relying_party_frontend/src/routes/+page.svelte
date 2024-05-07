@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '$core/constants/app.constants';
 	import { whoAmI } from '$core/api/backend.api';
+    import RequestPermissions from "$lib/RequestPermissions.svelte";
 
 	$effect(() => {
 		(async () => {
@@ -10,5 +11,6 @@
 	});
 </script>
 
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<h1>Relying Party</h1>
+
+<RequestPermissions />

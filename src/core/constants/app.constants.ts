@@ -12,3 +12,6 @@ export const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
 
 export const AUTH_POPUP_WIDTH = 576;
 export const AUTH_POPUP_HEIGHT = 625;
+
+export const WALLET_POPUP_WIDTH = 300;
+export const WALLET_POPUP_HEIGHT = 500;
