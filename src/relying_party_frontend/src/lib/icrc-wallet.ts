@@ -1,13 +1,29 @@
-import type { SignerRpcNotification } from '$core/types/signer';
+import { WALLET_POPUP_HEIGHT, WALLET_POPUP_WIDTH } from '$core/constants/app.constants';
+import { SignerRpcNotification, type SignerRpcNotificationType } from '$core/types/signer';
+import { popupTopRight } from '$core/utils/window.utils';
 
-export type Unsubscribe = () => void;
+export class IcrcWallet {
+	private constructor(private walletOrigin: string | undefined) {}
 
-export const initIcrcWallet = (): Unsubscribe => {
-	window.addEventListener('message', onMessage);
+	static connect(): Promise<IcrcWallet> {
+		return new Promise<IcrcWallet>((resolve) => {
+			const popup = window.open(
+				'http://localhost:5174',
+				'walletWindow',
+				popupTopRight({ width: WALLET_POPUP_WIDTH, height: WALLET_POPUP_HEIGHT })
+			);
 
-	return () => {
-		window.removeEventListener('message', onMessage);
-	};
-};
+			const onMessage = ({ data, origin }: MessageEvent<Partial<SignerRpcNotificationType>>) => {
+				const notification = SignerRpcNotification.parse(data);
+				console.log(notification);
 
-const onMessage = ({ data, origin }: MessageEvent<Partial<SignerRpcNotification>>) => {};
+				popup?.close();
+
+				const wallet = new IcrcWallet(origin);
+				resolve(wallet);
+			};
+
+			window?.addEventListener('message', onMessage);
+		});
+	}
+}

@@ -7,5 +7,5 @@ export const notifyReady = () => {
 		method: SignerRpcMethod.ICRC29_READY
 	};
 
-	parent.postMessage(msg, '*');
+	window.opener.postMessage(msg, '*');
 };

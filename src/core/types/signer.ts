@@ -5,10 +5,10 @@ export enum SignerRpcMethod {
 	ICRC29_READY = 'icrc29_ready'
 }
 
-const SignerRpcNotification = z
+export const SignerRpcNotification = z
 	.object({
 		method: z.nativeEnum(SignerRpcMethod)
 	})
 	.merge(RpcNotification.omit({ method: true }));
 
-export type SignerRpcNotification = z.infer<typeof SignerRpcNotification>;
+export type SignerRpcNotificationType = z.infer<typeof SignerRpcNotification>;
