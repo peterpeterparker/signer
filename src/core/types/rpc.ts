@@ -1,21 +1,28 @@
-import type { Either } from '../utils/ts.utils';
+import { z } from 'zod';
 
 // https://www.jsonrpc.org/specification#conventions
 
-export type JsonRpc = '2.0';
-export type RpcId = string | number | null;
+const JsonRpc = z.literal('2.0');
 
-export interface RpcRequest<RpcMethod extends string, RpcParams = never> {
-	jsonrpc: JsonRpc;
-	method: RpcMethod;
-	params?: RpcParams;
-	id?: RpcId;
-}
+const RpcId = z.union([z.string(), z.number(), z.null()]);
 
-export type RpcNotification<RpcMethod extends string, RpcParams = never> = Omit<
-	RpcRequest<RpcMethod, RpcParams>,
-	'id'
->;
+const Rpc = z.object({
+	jsonrpc: JsonRpc,
+	id: z.optional(RpcId)
+});
+
+const RpcRequest = Rpc.merge(
+	z.object({
+		method: z.string(),
+		params: z.optional(z.never())
+	})
+);
+
+export type RpcRequest = z.infer<typeof RpcRequest>;
+
+export const RpcNotification = RpcRequest.omit({ id: true });
+
+export type RpcNotification = z.infer<typeof RpcNotification>;
 
 export enum RpcErrorCode {
 	/**
@@ -45,13 +52,19 @@ export enum RpcErrorCode {
 	SERVER_ERROR = -32000
 }
 
-export interface RpcResponseError<RpcErrorData = never> {
-	code: number | RpcErrorCode;
-	message: string;
-	data?: RpcErrorData;
-}
+const RpcResponseError = z.object({
+	code: z.union([z.number(), z.nativeEnum(RpcErrorCode)]),
+	message: z.string(),
+	data: z.optional(z.never())
+});
 
-export type RpcResponse<RpcResult, RpcErrorData> = {
-	jsonrpc: JsonRpc;
-	id: RpcId;
-} & Either<{ result?: RpcResult }, { error?: RpcResponseError<RpcErrorData> }>;
+const RpcResponse = Rpc.merge(
+	z.object({
+		result: z.never(),
+		error: RpcResponseError
+	})
+)
+	.partial()
+	.refine((data) => data.result || data.error, 'Either first or second should be filled in.');
+
+export type RpcResponse = z.infer<typeof RpcResponse>;
