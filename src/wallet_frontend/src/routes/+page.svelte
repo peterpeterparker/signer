@@ -3,7 +3,7 @@
 	import { whoAmI } from '$core/api/backend.api';
 	import SignOut from '$core/components/SignOut.svelte';
 	import { notSignedIn } from '$core/derived/auth.derived';
-	import { notifyReady } from '$lib/signer.services';
+	import { IcrcSigner } from '$lib/icrc-signer';
 
 	$effect(() => {
 		(async () => {
@@ -12,12 +12,16 @@
 		})();
 	});
 
+	let signer: IcrcSigner | undefined;
+
 	$effect(() => {
 		if ($notSignedIn) {
+			signer?.destroy();
+			signer = undefined;
 			return;
 		}
 
-		notifyReady();
+		signer = IcrcSigner.init();
 	});
 </script>
 
