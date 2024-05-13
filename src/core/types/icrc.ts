@@ -3,13 +3,22 @@ import { z } from 'zod';
 
 export const ICRC25_REQUEST_PERMISSIONS = 'icrc25_request_permissions';
 export const ICRC27_GET_ACCOUNTS = 'icrc27_get_accounts';
+export const ICRC32_SIGN_CHALLENGE = 'icrc32_sign_challenge';
 export const ICRC29_READY = 'icrc29_ready';
 
 export const IcrcWalletMethod = z.enum([
 	ICRC25_REQUEST_PERMISSIONS,
 	ICRC27_GET_ACCOUNTS,
+	ICRC32_SIGN_CHALLENGE,
 	ICRC29_READY
 ]);
+
+const IcrcWalletRequestMethod = IcrcWalletMethod.exclude([
+	ICRC25_REQUEST_PERMISSIONS,
+	ICRC29_READY
+]);
+
+export type IcrcWalletRequestMethodType = z.infer<typeof IcrcWalletRequestMethod>;
 
 export const IcrcWalletNotification = z
 	.object({
@@ -19,13 +28,19 @@ export const IcrcWalletNotification = z
 
 export type IcrcWalletNotificationType = z.infer<typeof IcrcWalletNotification>;
 
+const IcrcWalletRequestScopes = z.array(
+	z.object({
+		method: IcrcWalletRequestMethod
+	})
+);
+
+export type IcrcWalletRequestScopesType = z.infer<typeof IcrcWalletRequestScopes>;
+
 const IcrcWalletRequestParams = z.object({
-	scopes: z.array(
-		z.object({
-			method: IcrcWalletMethod.exclude([ICRC25_REQUEST_PERMISSIONS, ICRC29_READY])
-		})
-	)
+	scopes: IcrcWalletRequestScopes
 });
+
+export type IcrcWalletRequestParamsType = z.infer<typeof IcrcWalletRequestParams>;
 
 export const IcrcWalletRequest = z
 	.object({

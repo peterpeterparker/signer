@@ -4,6 +4,8 @@
 	import SignOut from '$core/components/SignOut.svelte';
 	import { notSignedIn } from '$core/derived/auth.derived';
 	import { IcrcSigner } from '$lib/icrc-signer';
+	import { ICRC27_GET_ACCOUNTS, type IcrcWalletRequestScopesType } from '$core/types/icrc';
+	import { nonNullish } from '@dfinity/utils';
 
 	$effect(() => {
 		(async () => {
@@ -11,6 +13,8 @@
 			console.log(value);
 		})();
 	});
+
+	let scopes: IcrcWalletRequestScopesType | undefined = $state(undefined);
 
 	let signer: IcrcSigner | undefined;
 
@@ -21,10 +25,35 @@
 			return;
 		}
 
-		signer = IcrcSigner.init();
+		signer = IcrcSigner.init({
+			acceptMethods: [ICRC27_GET_ACCOUNTS],
+			onRequestPermissions: (s) => (scopes = s)
+		});
 	});
+
+	const onsubmit = ($event: FormDataEvent) => {
+		$event.preventDefault();
+
+		console.log('submit');
+	};
 </script>
 
 <h1>Wallet</h1>
 
 <SignOut />
+
+<hr />
+
+{#if nonNullish(scopes)}
+	<h2>Grant Permissions</h2>
+
+	<form {onsubmit} method="POST">
+		<ul>
+			{#each scopes as scope}
+				<li>{scope.method}</li>
+			{/each}
+		</ul>
+
+		<button>Approve</button>
+	</form>
+{/if}
