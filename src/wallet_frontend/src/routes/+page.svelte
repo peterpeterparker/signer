@@ -28,9 +28,9 @@
 		signer = IcrcSigner.init({
 			acceptMethods: [ICRC27_GET_ACCOUNTS],
 			onRequestPermissions: (s) => {
-				console.log(s)
+				console.log(s);
 
-				scopes = s
+				scopes = s;
 			}
 		});
 	});

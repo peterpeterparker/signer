@@ -68,6 +68,6 @@ export const RpcResponse = Rpc.merge(
 	})
 )
 	.partial()
-	.refine((data) => data.result || data.error, 'Either first or second should be filled in.');
+	.refine((data) => data.result || data.error, 'Either result or error should be provided.');
 
 export type RpcResponse = z.infer<typeof RpcResponse>;

@@ -1,23 +1,27 @@
+import { authStore } from '$core/stores/auth.store';
 import {
 	ICRC25_REQUEST_PERMISSIONS,
+	ICRC27_GET_ACCOUNTS,
 	ICRC29_READY,
+	type IcrcWalletGetAccountsRequestType,
 	type IcrcWalletNotificationType,
-	type IcrcWalletRequestMethodType,
+	type IcrcWalletPermissionsRequestType,
 	type IcrcWalletRequestParamsType,
 	type IcrcWalletRequestScopesType,
-	type IcrcWalletPermissionsRequestType
+	type IcrcWalletSupportedMethodType
 } from '$core/types/icrc';
+import { JSON_RPC_VERSION_2, RpcResponse } from '$core/types/rpc';
 import { assertNonNullish, nonNullish } from '@dfinity/utils';
-import {JSON_RPC_VERSION_2, RpcResponse} from "$core/types/rpc";
+import { get } from 'svelte/store';
 
 interface IcrcSignerInit {
-	acceptMethods: IcrcWalletRequestMethodType[];
+	acceptMethods: IcrcWalletSupportedMethodType[];
 	onRequestPermissions: (scopes: IcrcWalletRequestScopesType) => void;
 }
 
 export class IcrcSigner {
 	private walletOrigin: string | undefined;
-	private acceptMethods: IcrcWalletRequestMethodType[];
+	private acceptMethods: IcrcWalletSupportedMethodType[];
 	private callbackOnRequestPermissions: (scopes: IcrcWalletRequestScopesType) => void;
 
 	private constructor({ acceptMethods, onRequestPermissions }: IcrcSignerInit) {
@@ -30,7 +34,7 @@ export class IcrcSigner {
 	static init(params: IcrcSignerInit): IcrcSigner {
 		const notifyReady = () => {
 			const msg: IcrcWalletNotificationType = {
-				jsonrpc: '2.0',
+				jsonrpc: JSON_RPC_VERSION_2,
 				method: ICRC29_READY
 			};
 
@@ -60,7 +64,7 @@ export class IcrcSigner {
 		// TODO: walletOrigin is defined
 
 		window.opener.postMessage(msg, { targetOrigin: this.walletOrigin });
-	}
+	};
 
 	private onRequestPermissions(params: IcrcWalletRequestParamsType | undefined) {
 		// TODO error
@@ -77,18 +81,48 @@ export class IcrcSigner {
 		this.callbackOnRequestPermissions(acceptableScopes);
 	}
 
-	private onMessage = ({ data, origin }: MessageEvent<Partial<IcrcWalletPermissionsRequestType>>) => {
+	private onGetAccounts() {
+		const owner = get(authStore)?.identity?.getPrincipal();
+
+		assertNonNullish(owner);
+
+		// TODO: Create a type IcrcAccountForPostMessage
+		const account: { owner: string } = {
+			owner: owner.toText()
+		};
+
+		// TODO: type response
+		const msg = RpcResponse.parse({
+			jsonrpc: JSON_RPC_VERSION_2,
+			result: {
+				accounts: [account]
+			}
+		});
+
+		window.opener.postMessage(msg, { targetOrigin: this.walletOrigin });
+	}
+
+	private onMessage = ({
+		data,
+		origin
+	}: MessageEvent<
+		Partial<IcrcWalletPermissionsRequestType | IcrcWalletGetAccountsRequestType>
+	>) => {
 		if (nonNullish(this.walletOrigin) && this.walletOrigin !== origin) {
 			// TODO error
+			// TODO mmmmh second access walletOrigin is not defined
 		}
 
 		this.walletOrigin = origin;
 
-		const { method, params } = data;
+		const { method } = data;
 
 		switch (method) {
 			case ICRC25_REQUEST_PERMISSIONS:
-				this.onRequestPermissions(params);
+				this.onRequestPermissions(data?.params);
+				break;
+			case ICRC27_GET_ACCOUNTS:
+				this.onGetAccounts();
 				break;
 		}
 	};

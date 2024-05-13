@@ -1,4 +1,4 @@
-import {RpcNotification, RpcRequest} from '$core/types/rpc';
+import { RpcNotification, RpcRequest } from '$core/types/rpc';
 import { z } from 'zod';
 
 export const ICRC25_REQUEST_PERMISSIONS = 'icrc25_request_permissions';
@@ -18,7 +18,9 @@ const IcrcWalletRequestMethod = IcrcWalletMethod.exclude([
 	ICRC29_READY
 ]);
 
-export type IcrcWalletRequestMethodType = z.infer<typeof IcrcWalletRequestMethod>;
+export type IcrcWalletSupportedMethodType = z.infer<typeof IcrcWalletRequestMethod>;
+
+// Responses
 
 export const IcrcWalletNotification = z
 	.object({
@@ -27,6 +29,12 @@ export const IcrcWalletNotification = z
 	.merge(RpcNotification.omit({ method: true }));
 
 export type IcrcWalletNotificationType = z.infer<typeof IcrcWalletNotification>;
+
+// TODO: IcrcWalletGetAccountsResponse with RpcResponse<Generic>
+
+// TODO: split request and response?
+
+// Requests
 
 const IcrcWalletRequestScopes = z.array(
 	z.object({
@@ -50,3 +58,11 @@ export const IcrcWalletPermissionsRequest = z
 	.merge(RpcRequest.omit({ method: true, params: true }));
 
 export type IcrcWalletPermissionsRequestType = z.infer<typeof IcrcWalletPermissionsRequest>;
+
+export const IcrcWalletGetAccountsRequest = z
+	.object({
+		method: IcrcWalletMethod.extract([ICRC27_GET_ACCOUNTS])
+	})
+	.merge(RpcRequest.omit({ method: true, params: true }));
+
+export type IcrcWalletGetAccountsRequestType = z.infer<typeof IcrcWalletGetAccountsRequest>;
