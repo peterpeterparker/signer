@@ -27,14 +27,18 @@
 
 		signer = IcrcSigner.init({
 			acceptMethods: [ICRC27_GET_ACCOUNTS],
-			onRequestPermissions: (s) => (scopes = s)
+			onRequestPermissions: (s) => {
+				console.log(s)
+
+				scopes = s
+			}
 		});
 	});
 
 	const onsubmit = ($event: FormDataEvent) => {
 		$event.preventDefault();
 
-		console.log('submit');
+		signer?.approvePermissions($state.snapshot(scopes)!);
 	};
 </script>
 

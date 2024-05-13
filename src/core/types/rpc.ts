@@ -2,7 +2,9 @@ import { z } from 'zod';
 
 // https://www.jsonrpc.org/specification#conventions
 
-const JsonRpc = z.literal('2.0');
+export const JSON_RPC_VERSION_2 = '2.0';
+
+const JsonRpc = z.literal(JSON_RPC_VERSION_2);
 
 const RpcId = z.union([z.string(), z.number(), z.null()]);
 
@@ -11,18 +13,18 @@ const Rpc = z.object({
 	id: z.optional(RpcId)
 });
 
-const RpcRequest = Rpc.merge(
+export const RpcRequest = Rpc.merge(
 	z.object({
 		method: z.string(),
 		params: z.optional(z.never())
 	})
 );
 
-export type RpcRequest = z.infer<typeof RpcRequest>;
+type RpcRequest = z.infer<typeof RpcRequest>;
 
 export const RpcNotification = RpcRequest.omit({ id: true });
 
-export type RpcNotification = z.infer<typeof RpcNotification>;
+type RpcNotification = z.infer<typeof RpcNotification>;
 
 export enum RpcErrorCode {
 	/**
@@ -58,9 +60,10 @@ const RpcResponseError = z.object({
 	data: z.optional(z.never())
 });
 
-const RpcResponse = Rpc.merge(
+export const RpcResponse = Rpc.merge(
 	z.object({
-		result: z.never(),
+		// TODO: type result as generic
+		result: z.any(),
 		error: RpcResponseError
 	})
 )

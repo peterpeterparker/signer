@@ -5,9 +5,10 @@ import {
 	type IcrcWalletRequestMethodType,
 	type IcrcWalletRequestParamsType,
 	type IcrcWalletRequestScopesType,
-	type IcrcWalletRequestType
+	type IcrcWalletPermissionsRequestType
 } from '$core/types/icrc';
 import { assertNonNullish, nonNullish } from '@dfinity/utils';
+import {JSON_RPC_VERSION_2, RpcResponse} from "$core/types/rpc";
 
 interface IcrcSignerInit {
 	acceptMethods: IcrcWalletRequestMethodType[];
@@ -47,6 +48,20 @@ export class IcrcSigner {
 		window.removeEventListener('message', this.onMessage);
 	};
 
+	// TODO: id back and forth
+	approvePermissions = (scopes: IcrcWalletRequestScopesType) => {
+		const msg = RpcResponse.parse({
+			jsonrpc: JSON_RPC_VERSION_2,
+			result: {
+				scopes
+			}
+		});
+
+		// TODO: walletOrigin is defined
+
+		window.opener.postMessage(msg, { targetOrigin: this.walletOrigin });
+	}
+
 	private onRequestPermissions(params: IcrcWalletRequestParamsType | undefined) {
 		// TODO error
 		assertNonNullish(params);
@@ -62,7 +77,7 @@ export class IcrcSigner {
 		this.callbackOnRequestPermissions(acceptableScopes);
 	}
 
-	private onMessage = ({ data, origin }: MessageEvent<Partial<IcrcWalletRequestType>>) => {
+	private onMessage = ({ data, origin }: MessageEvent<Partial<IcrcWalletPermissionsRequestType>>) => {
 		if (nonNullish(this.walletOrigin) && this.walletOrigin !== origin) {
 			// TODO error
 		}

@@ -4,9 +4,10 @@ import {
 	ICRC27_GET_ACCOUNTS,
 	IcrcWalletNotification,
 	type IcrcWalletNotificationType,
-	type IcrcWalletRequestType
+	type IcrcWalletPermissionsRequestType
 } from '$core/types/icrc';
 import { popupTopRight } from '$core/utils/window.utils';
+import {JSON_RPC_VERSION_2} from "$core/types/rpc";
 
 export class IcrcWallet {
 	private constructor(private walletOrigin: string | undefined) {}
@@ -20,13 +21,15 @@ export class IcrcWallet {
 			);
 
 			const onMessage = ({ data, origin }: MessageEvent<Partial<IcrcWalletNotificationType>>) => {
+
+				console.log(data, origin);
+
 				// Parse throw an error if not expected msg.
 				const notification = IcrcWalletNotification.parse(data);
 				console.log(notification);
 
-				// TODO:
-				const msg: IcrcWalletRequestType = {
-					jsonrpc: '2.0',
+				const msg: IcrcWalletPermissionsRequestType = {
+					jsonrpc: JSON_RPC_VERSION_2,
 					method: ICRC25_REQUEST_PERMISSIONS,
 					params: {
 						scopes: [{ method: ICRC27_GET_ACCOUNTS }]
@@ -45,4 +48,6 @@ export class IcrcWallet {
 			window.addEventListener('message', onMessage);
 		});
 	}
+
+
 }

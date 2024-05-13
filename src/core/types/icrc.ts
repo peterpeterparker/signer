@@ -1,4 +1,4 @@
-import { RpcNotification } from '$core/types/rpc';
+import {RpcNotification, RpcRequest} from '$core/types/rpc';
 import { z } from 'zod';
 
 export const ICRC25_REQUEST_PERMISSIONS = 'icrc25_request_permissions';
@@ -42,11 +42,11 @@ const IcrcWalletRequestParams = z.object({
 
 export type IcrcWalletRequestParamsType = z.infer<typeof IcrcWalletRequestParams>;
 
-export const IcrcWalletRequest = z
+export const IcrcWalletPermissionsRequest = z
 	.object({
 		method: IcrcWalletMethod.extract([ICRC25_REQUEST_PERMISSIONS]),
 		params: IcrcWalletRequestParams
 	})
-	.merge(RpcNotification.omit({ method: true, params: true }));
+	.merge(RpcRequest.omit({ method: true, params: true }));
 
-export type IcrcWalletRequestType = z.infer<typeof IcrcWalletRequest>;
+export type IcrcWalletPermissionsRequestType = z.infer<typeof IcrcWalletPermissionsRequest>;
