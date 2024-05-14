@@ -1,19 +1,10 @@
 <script lang="ts">
 	import '$core/constants/app.constants';
-	import { walletGreet } from '$core/api/backend.api';
-	import SignOut from '$core/components/SignOut.svelte';
 	import { notSignedIn } from '$core/derived/auth.derived';
 	import { IcrcSigner } from '$lib/icrc-signer';
 	import { ICRC27_GET_ACCOUNTS, ICRC49_CALL_CANISTER, type IcrcWalletScopesArrayType } from '$core/types/icrc';
 	import { nonNullish } from '@dfinity/utils';
 	import { authStore } from '$core/stores/auth.store';
-
-	$effect(() => {
-		(async () => {
-			const value = await walletGreet(undefined);
-			console.log(value);
-		})();
-	});
 
 	let scopes: IcrcWalletScopesArrayType | undefined = $state(undefined);
 

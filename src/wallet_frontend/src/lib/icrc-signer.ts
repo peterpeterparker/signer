@@ -1,3 +1,4 @@
+import { walletGreet } from '$core/api/backend.api';
 import { authStore } from '$core/stores/auth.store';
 import {
 	ICRC25_REQUEST_PERMISSIONS,
@@ -18,7 +19,8 @@ import type {
 	IcrcWalletGreetingsRequestType
 } from '$core/types/icrc-demo';
 import { JSON_RPC_VERSION_2 } from '$core/types/rpc';
-import { assertNonNullish, nonNullish } from '@dfinity/utils';
+import { IDL } from '@dfinity/candid';
+import { arrayOfNumberToUint8Array, assertNonNullish, nonNullish } from '@dfinity/utils';
 import { get } from 'svelte/store';
 
 interface IcrcSignerInit {
@@ -89,7 +91,23 @@ export class IcrcSigner {
 	}
 
 	private async onGreetings(params: IcrcWalletGreetingsParamsType | undefined) {
-		console.log(params);
+		// TODO: handle error
+		assertNonNullish(params);
+
+		// TODO: message content
+
+		const { arg } = params;
+
+		// TODO: according Frederik we should not decode the args and use agent-js standard DX to make calls
+		const [args] = IDL.decode([IDL.Text], arrayOfNumberToUint8Array(arg));
+		assertNonNullish(args);
+
+		const value = await walletGreet({
+			identity: get(authStore).identity,
+			args: "hello"
+		});
+
+		// TODO: send response
 	}
 
 	private onGetAccounts() {

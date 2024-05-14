@@ -3,6 +3,7 @@
 	import { IcrcWallet } from '$lib/icrc-wallet';
 	import { ICRC49_CALL_CANISTER } from '$core/types/icrc';
 	import { assertNonNullish, isNullish } from '@dfinity/utils';
+	import { authStore } from '$core/stores/auth.store';
 
 	type Props = {
 		wallet: IcrcWallet | undefined;
@@ -16,7 +17,10 @@
 		greetings = 'Loading...';
 
 		try {
-			greetings = await walletGreet(undefined);
+			greetings = await walletGreet({
+				identity: $authStore.identity,
+				args: "Wallet Jimmy"
+			});
 		} catch (err) {
 			greetings = `${err}`;
 		}
