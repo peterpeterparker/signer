@@ -17,7 +17,7 @@ import {
 	type IcrcWalletScopesArrayType,
 	type IcrcWalletScopesType
 } from '$core/types/icrc';
-import { type IcrcWalletGreetingsRequestType } from '$core/types/icrc-demo';
+import { type IcrcWalletGreetingsRequestType, IcrcWalletGreetingsResponse } from '$core/types/icrc-demo';
 import { JSON_RPC_VERSION_2, RpcRequest } from '$core/types/rpc';
 import { popupTopRight } from '$core/utils/window.utils';
 import { IDL } from '@dfinity/candid';
@@ -125,8 +125,8 @@ export class IcrcWallet {
 		});
 	}
 
-	greetings = ({ account }: { account: IcrcAccount }): Promise<IcrcAccount[]> => {
-		return new Promise<IcrcAccount[]>((resolve) => {
+	greetings = ({ account }: { account: IcrcAccount }): Promise<string> => {
+		return new Promise<string>((resolve) => {
 			const popup = window.open(
 				'http://localhost:5174',
 				'walletWindow',
@@ -167,16 +167,17 @@ export class IcrcWallet {
 
 				console.log(data);
 
-				const response = IcrcWalletGetAccountsResponse.parse(data);
+				const {result} = IcrcWalletGreetingsResponse.parse(data);
 
-				console.log('RESULT ----> ', response.result);
+				// TODO: handle error
+				assertNonNullish(result);
 
 				// TODO: I'm not convinced by this pattern. Really handy but, not beautiful
 				popup?.close();
 
 				window.removeEventListener('message', onMessage);
 
-				resolve([]);
+				resolve(result.message);
 			};
 
 			// TODO: create popup after registering this event

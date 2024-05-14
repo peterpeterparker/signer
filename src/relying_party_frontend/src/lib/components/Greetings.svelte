@@ -37,7 +37,7 @@
 
 		assertNonNullish(account);
 
-		await wallet?.greetings({account});
+		greetings = await wallet?.greetings({account});
 	};
 </script>
 
