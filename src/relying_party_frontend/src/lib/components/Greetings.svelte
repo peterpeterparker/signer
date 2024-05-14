@@ -33,6 +33,8 @@
 	);
 
 	const onclickApprove = async () => {
+		greetings = 'Calling...';
+
 		const account = $state.snapshot(accounts[0]);
 
 		assertNonNullish(account);
