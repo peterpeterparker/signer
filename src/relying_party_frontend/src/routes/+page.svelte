@@ -3,7 +3,7 @@
 	import { isNullish } from '@dfinity/utils';
 	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 	import { IcrcWallet } from '$lib/icrc-wallet';
-	import Greetings from '$core/components/Greetings.svelte';
+	import Greetings from '$lib/components/Greetings.svelte';
 
 	let wallet: IcrcWallet | undefined = $state(undefined);
 
@@ -16,8 +16,6 @@
 
 <h1>Relying Party</h1>
 
-<Greetings />
-
 {#if isNullish(wallet)}
 	<button {onclick}>Connect Wallet</button>
 {:else}
@@ -29,3 +27,7 @@
 		{/each}
 	</ul>
 {/if}
+
+<hr />
+
+<Greetings {wallet} />

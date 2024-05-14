@@ -63,7 +63,7 @@ export class IcrcSigner {
 			}
 		});
 
-		// TODO: walletOrigin is defined
+		// TODO: walletOrigin is defined - should be saved in session
 
 		window.opener.postMessage(msg, { targetOrigin: this.walletOrigin });
 	};

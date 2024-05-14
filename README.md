@@ -4,6 +4,7 @@ Signer standards:
 - [ICRC-25](https://github.com/dfinity/wg-identity-authentication/blob/main/topics/icrc_25_signer_interaction_standard.md#summary): Signer Interaction Standard
 - ICRC-31: Get Accounts
 - [ICRC-21](https://github.com/dfinity/wg-identity-authentication/blob/main/topics/ICRC-21/icrc_21_consent_msg.md): Canister Call Consent Messages
+- [ICRC-49](https://github.com/dfinity/wg-identity-authentication/blob/main/topics/icrc_49_call_canister.md): Call Canister
 
 ---
 
