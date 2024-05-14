@@ -42,14 +42,18 @@ export const IcrcWalletNotification = z
 
 export type IcrcWalletNotificationType = z.infer<typeof IcrcWalletNotification>;
 
-export const IcrcAccount = z.object({
+export const IcrcGetAccount = z.object({
 	owner: z.string(),
 	subaccount: z.optional(z.array(z.number()))
 });
 
+export const IcrcGetAccountArray = z.array(IcrcGetAccount);
+
+export type IcrcGetAccountArrayType = z.infer<typeof IcrcGetAccountArray>;
+
 export const IcrcWalletGetAccountsResponse = inferRpcResponse(
 	z.object({
-		accounts: z.array(IcrcAccount)
+		accounts: IcrcGetAccountArray
 	})
 );
 

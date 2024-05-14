@@ -5,6 +5,7 @@ import {
 	IcrcWalletGetAccountsResponse,
 	IcrcWalletNotification,
 	IcrcWalletPermissionsResponse,
+	type IcrcGetAccountArrayType,
 	type IcrcWalletGetAccountsRequestType,
 	type IcrcWalletNotificationType,
 	type IcrcWalletPermissionsRequestType
@@ -12,10 +13,26 @@ import {
 import { JSON_RPC_VERSION_2, RpcRequest } from '$core/types/rpc';
 import { popupTopRight } from '$core/utils/window.utils';
 import type { IcrcAccount } from '@dfinity/ledger-icrc';
-import { nonNullish } from '@dfinity/utils';
+import { Principal } from '@dfinity/principal';
+import { assertNonNullish, nonNullish } from '@dfinity/utils';
 
 export class IcrcWallet {
-	private constructor(private walletOrigin: string | undefined) {}
+	readonly #walletOrigin: string | undefined;
+	readonly #accounts: IcrcAccount[] | undefined;
+
+	private constructor({
+		origin,
+		accounts
+	}: {
+		origin: string | undefined;
+		accounts?: IcrcGetAccountArrayType;
+	}) {
+		this.#walletOrigin = origin;
+		this.#accounts = accounts?.map(({ owner, subaccount }) => ({
+			owner: Principal.fromText(owner),
+			subaccount
+		}));
+	}
 
 	static connect(): Promise<IcrcWallet> {
 		return new Promise<IcrcWallet>((resolve) => {
@@ -37,13 +54,10 @@ export class IcrcWallet {
 
 				walletOrigin = origin;
 
-				const { success: isRpcRequest } = RpcRequest.safeParse(data);
+				const { success: isWalletNotification } = IcrcWalletNotification.safeParse(data);
 
-				if (isRpcRequest) {
-					// TODO: Parse throw an error if not expected msg.
-					const notification = IcrcWalletNotification.parse(data);
-					console.log(notification);
-
+				// We got the ICRC29_READY message, we can request permissions.
+				if (isWalletNotification) {
 					const msg: IcrcWalletPermissionsRequestType = {
 						jsonrpc: JSON_RPC_VERSION_2,
 						method: ICRC25_REQUEST_PERMISSIONS,
@@ -56,16 +70,30 @@ export class IcrcWallet {
 					return;
 				}
 
-				const response = IcrcWalletPermissionsResponse.parse(data);
+				const { success: isWalletPermissions } = IcrcWalletPermissionsResponse.safeParse(data);
 
-				console.log('RESULT ----> ', response.result);
+				// We got the permissions, we can request the accounts
+				// TODO: compare nanoid
+				if (isWalletPermissions) {
+					const msg: IcrcWalletGetAccountsRequestType = {
+						jsonrpc: JSON_RPC_VERSION_2,
+						method: ICRC27_GET_ACCOUNTS
+					};
+
+					popup?.postMessage(msg, { targetOrigin: origin });
+					return;
+				}
+
+				// TODO: catch errors
+				const { result, error: _ } = IcrcWalletGetAccountsResponse.parse(data);
+				assertNonNullish(result);
 
 				// TODO: I'm not convinced by this pattern. Really handy but, not beautiful
 				popup?.close();
 
 				window.removeEventListener('message', onMessage);
 
-				const wallet = new IcrcWallet(origin);
+				const wallet = new IcrcWallet({ origin, accounts: result.accounts });
 				resolve(wallet);
 			};
 
@@ -74,6 +102,10 @@ export class IcrcWallet {
 		});
 	}
 
+	// TODO: deprecated?
+	/**
+	 * @deprecated
+	 */
 	getAccounts = (): Promise<IcrcAccount[]> => {
 		return new Promise<IcrcAccount[]>((resolve) => {
 			const popup = window.open(
@@ -85,7 +117,7 @@ export class IcrcWallet {
 			// TODO: assert popup non nullish
 
 			const onMessage = ({ data, origin }: MessageEvent<Partial<IcrcWalletNotificationType>>) => {
-				if (nonNullish(this.walletOrigin) && this.walletOrigin !== origin) {
+				if (nonNullish(this.#walletOrigin) && this.#walletOrigin !== origin) {
 					// TODO
 					throw new Error('Invalid origin');
 				}
@@ -102,7 +134,7 @@ export class IcrcWallet {
 						method: ICRC27_GET_ACCOUNTS
 					};
 
-					popup?.postMessage(msg, { targetOrigin: this.walletOrigin });
+					popup?.postMessage(msg, { targetOrigin: this.#walletOrigin });
 					return;
 				}
 
@@ -124,4 +156,8 @@ export class IcrcWallet {
 			window.addEventListener('message', onMessage);
 		});
 	};
+
+	get accounts(): IcrcAccount[] | undefined {
+		return this.#accounts;
+	}
 }

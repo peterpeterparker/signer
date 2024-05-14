@@ -1,8 +1,9 @@
 <script lang="ts">
 	import '$core/constants/app.constants';
 	import { whoAmI } from '$core/api/backend.api';
-	import { IcrcWallet } from '$lib/icrc-wallet';
 	import { isNullish } from '@dfinity/utils';
+	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
+	import { IcrcWallet } from '$lib/icrc-wallet';
 
 	$effect(() => {
 		(async () => {
@@ -17,15 +18,19 @@
 		wallet = await IcrcWallet.connect();
 	};
 
-	const getAccounts = async () => {
-		wallet?.getAccounts();
-	};
+	let accounts = $derived(wallet?.accounts ?? []);
 </script>
 
 <h1>Relying Party</h1>
 
 {#if isNullish(wallet)}
-	<button {onclick}>Request Wallet Permissions</button>
+	<button {onclick}>Connect Wallet</button>
 {:else}
-	<button onclick={getAccounts}>Get Accounts</button>
+	<p>Accounts:</p>
+
+	<ul>
+		{#each accounts as account}
+			<li>{encodeIcrcAccount(account)}</li>
+		{/each}
+	</ul>
 {/if}

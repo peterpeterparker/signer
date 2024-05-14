@@ -12,7 +12,7 @@ TODOs:
   - Types
   - Wallet
   - Signer
-- Implement all standards 
+- Implement all standards
 - Unit tests library
 - E2E tests library with sample dApps
 - Document libraries including providing examples
