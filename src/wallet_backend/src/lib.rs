@@ -1,5 +1,6 @@
 use candid::decode_one;
-use ic_cdk::{export_candid, query, update};
+use ic_cdk::{export_candid, init, query, update};
+use ic_cdk::api::call::{arg_data, ArgDecoderConfig};
 use crate::icrc21_types::{
     Icrc21ConsentInfo, Icrc21ConsentMessage, Icrc21ConsentMessageMetadata,
     Icrc21ConsentMessageRequest, Icrc21DeviceSpec, Icrc21Error, Icrc21ErrorInfo,
@@ -8,12 +9,37 @@ use crate::icrc21_types::{
 use itertools::Itertools;
 use Icrc21DeviceSpec::GenericDisplay;
 use Icrc21Error::UnsupportedCanisterCall;
+use crate::wallet_types::{HeapState, State, WalletArgs};
+use std::cell::RefCell;
+use crate::guards::{caller_is_owner};
 
 mod icrc21_types;
+mod wallet_types;
+mod guards;
 
-#[query]
+thread_local! {
+    pub static STATE: RefCell<State> = RefCell::default();
+}
+
+#[init]
+pub fn init() {
+    let call_arg = arg_data::<(Option<WalletArgs>,)>(ArgDecoderConfig::default()).0;
+    let WalletArgs { owners } = call_arg.unwrap();
+
+    let heap = HeapState {
+        owners
+    };
+
+    STATE.with(|state| {
+        *state.borrow_mut() = State {
+            heap,
+        };
+    });
+}
+
+#[query(guard = "caller_is_owner")]
 fn greet(name: String) -> String {
-    format!("Hello, {}!", name)
+    format!("Hello owner, {}!", name)
 }
 
 #[query]

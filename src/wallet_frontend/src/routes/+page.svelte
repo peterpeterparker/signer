@@ -6,6 +6,7 @@
 	import { IcrcSigner } from '$lib/icrc-signer';
 	import { ICRC27_GET_ACCOUNTS, type IcrcWalletScopesArrayType } from '$core/types/icrc';
 	import { nonNullish } from '@dfinity/utils';
+	import {authStore} from "$core/stores/auth.store";
 
 	$effect(() => {
 		(async () => {
@@ -43,6 +44,8 @@
 </script>
 
 <h1>Wallet</h1>
+
+<p>User ID: {$authStore?.identity?.getPrincipal().toText() ?? ""}</p>
 
 <SignOut />
 
