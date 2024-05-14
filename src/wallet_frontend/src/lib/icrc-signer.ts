@@ -3,26 +3,28 @@ import {
 	ICRC25_REQUEST_PERMISSIONS,
 	ICRC27_GET_ACCOUNTS,
 	ICRC29_READY,
+	IcrcWalletGetAccountsResponse,
+	IcrcWalletPermissionsResponse,
 	type IcrcWalletGetAccountsRequestType,
 	type IcrcWalletNotificationType,
 	type IcrcWalletPermissionsRequestType,
 	type IcrcWalletRequestParamsType,
-	type IcrcWalletRequestScopesType,
+	type IcrcWalletScopesArrayType,
 	type IcrcWalletSupportedMethodType
 } from '$core/types/icrc';
-import { JSON_RPC_VERSION_2, RpcResponse } from '$core/types/rpc';
+import { JSON_RPC_VERSION_2 } from '$core/types/rpc';
 import { assertNonNullish, nonNullish } from '@dfinity/utils';
 import { get } from 'svelte/store';
 
 interface IcrcSignerInit {
 	acceptMethods: IcrcWalletSupportedMethodType[];
-	onRequestPermissions: (scopes: IcrcWalletRequestScopesType) => void;
+	onRequestPermissions: (scopes: IcrcWalletScopesArrayType) => void;
 }
 
 export class IcrcSigner {
 	private walletOrigin: string | undefined;
 	private acceptMethods: IcrcWalletSupportedMethodType[];
-	private callbackOnRequestPermissions: (scopes: IcrcWalletRequestScopesType) => void;
+	private callbackOnRequestPermissions: (scopes: IcrcWalletScopesArrayType) => void;
 
 	private constructor({ acceptMethods, onRequestPermissions }: IcrcSignerInit) {
 		this.acceptMethods = acceptMethods;
@@ -53,8 +55,8 @@ export class IcrcSigner {
 	};
 
 	// TODO: id back and forth
-	approvePermissions = (scopes: IcrcWalletRequestScopesType) => {
-		const msg = RpcResponse.parse({
+	approvePermissions = (scopes: IcrcWalletScopesArrayType) => {
+		const msg = IcrcWalletPermissionsResponse.parse({
 			jsonrpc: JSON_RPC_VERSION_2,
 			result: {
 				scopes
@@ -92,7 +94,7 @@ export class IcrcSigner {
 		};
 
 		// TODO: type response
-		const msg = RpcResponse.parse({
+		const msg = IcrcWalletGetAccountsResponse.parse({
 			jsonrpc: JSON_RPC_VERSION_2,
 			result: {
 				accounts: [account]

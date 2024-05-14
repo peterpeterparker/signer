@@ -60,14 +60,12 @@ const RpcResponseError = z.object({
 	data: z.optional(z.never())
 });
 
-export const RpcResponse = Rpc.merge(
-	z.object({
-		// TODO: type result as generic
-		result: z.any(),
-		error: RpcResponseError
-	})
-)
-	.partial()
-	.refine((data) => data.result || data.error, 'Either result or error should be provided.');
-
-export type RpcResponse = z.infer<typeof RpcResponse>;
+export const inferRpcResponse = <T extends z.ZodTypeAny>(result: T) =>
+	Rpc.merge(
+		z.object({
+			result: result,
+			error: RpcResponseError
+		})
+	)
+		.partial()
+		.refine((data) => data.result || data.error, 'Either result or error should be provided.');

@@ -2,12 +2,14 @@ import { WALLET_POPUP_HEIGHT, WALLET_POPUP_WIDTH } from '$core/constants/app.con
 import {
 	ICRC25_REQUEST_PERMISSIONS,
 	ICRC27_GET_ACCOUNTS,
+	IcrcWalletGetAccountsResponse,
 	IcrcWalletNotification,
+	IcrcWalletPermissionsResponse,
 	type IcrcWalletGetAccountsRequestType,
 	type IcrcWalletNotificationType,
 	type IcrcWalletPermissionsRequestType
 } from '$core/types/icrc';
-import { JSON_RPC_VERSION_2, RpcRequest, RpcResponse } from '$core/types/rpc';
+import { JSON_RPC_VERSION_2, RpcRequest } from '$core/types/rpc';
 import { popupTopRight } from '$core/utils/window.utils';
 import type { IcrcAccount } from '@dfinity/ledger-icrc';
 import { nonNullish } from '@dfinity/utils';
@@ -54,7 +56,7 @@ export class IcrcWallet {
 					return;
 				}
 
-				const response = RpcResponse.parse(data);
+				const response = IcrcWalletPermissionsResponse.parse(data);
 
 				console.log('RESULT ----> ', response.result);
 
@@ -106,8 +108,7 @@ export class IcrcWallet {
 
 				console.log(data);
 
-				// TODO: type response for accounts
-				const response = RpcResponse.parse(data);
+				const response = IcrcWalletGetAccountsResponse.parse(data);
 
 				console.log('RESULT ----> ', response.result);
 
