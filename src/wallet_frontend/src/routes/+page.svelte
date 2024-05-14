@@ -47,8 +47,6 @@
 
 <p>User ID: {$authStore?.identity?.getPrincipal().toText() ?? ''}</p>
 
-<SignOut />
-
 <hr />
 
 {#if nonNullish(scopes)}

@@ -3,6 +3,7 @@
 	import { authStore } from '../stores/auth.store';
 	import { signedIn } from '$core/derived/auth.derived';
 	import SignIn from '$core/components/SignIn.svelte';
+	import SignOut from '$core/components/SignOut.svelte';
 
 	const init = async () => await Promise.all([syncAuthStore()]);
 
@@ -26,6 +27,9 @@
 {:then _}
 	{#if $signedIn}
 		<slot />
+
+		<hr />
+		<SignOut />
 	{:else}
 		<SignIn />
 	{/if}
