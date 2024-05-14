@@ -1,8 +1,8 @@
-import { BACKEND_CANISTER_ID } from '$core/constants/app.constants';
+import { WALLET_BACKEND_CANISTER_ID } from '$core/constants/app.constants';
 import type { OptionIdentity } from '$core/types/identity';
-import type { _SERVICE as BackendActor } from '$declarations/relying_party_backend/relying_party_backend.did';
-import { idlFactory as idlCertifiedFactoryBackend } from '$declarations/relying_party_backend/relying_party_backend.factory.certified.did';
-import { idlFactory as idlFactoryBackend } from '$declarations/relying_party_backend/relying_party_backend.factory.did';
+import type { _SERVICE as WalletBackendActor } from '$declarations/wallet_backend/wallet_backend.did';
+import { idlFactory as idlCertifiedFactoryWalletBackend } from '$declarations/wallet_backend/wallet_backend.factory.certified.did';
+import { idlFactory as idlFactoryWalletBackend } from '$declarations/wallet_backend/wallet_backend.factory.did';
 import {
 	Actor,
 	AnonymousIdentity,
@@ -15,23 +15,23 @@ import type { Principal } from '@dfinity/principal';
 import { isNullish } from '@dfinity/utils';
 import { getAgent } from './agents.ic';
 
-let actors: { backend?: BackendActor } | undefined | null = undefined;
+let actors: { backend?: WalletBackendActor } | undefined | null = undefined;
 
-export const getBackendActor = async ({
+export const getWalletBackendActor = async ({
 	identity: actorIdentity,
 	certified = true
 }: {
 	identity: OptionIdentity;
 	certified?: boolean;
-}): Promise<BackendActor> => {
+}): Promise<WalletBackendActor> => {
 	const identity = actorIdentity ?? new AnonymousIdentity();
 
 	const { backend } = actors ?? { backend: undefined };
 
 	if (isNullish(backend)) {
-		const actor = await createActor<BackendActor>({
-			canisterId: BACKEND_CANISTER_ID,
-			idlFactory: certified ? idlCertifiedFactoryBackend : idlFactoryBackend,
+		const actor = await createActor<WalletBackendActor>({
+			canisterId: WALLET_BACKEND_CANISTER_ID,
+			idlFactory: certified ? idlCertifiedFactoryWalletBackend : idlFactoryWalletBackend,
 			identity
 		});
 

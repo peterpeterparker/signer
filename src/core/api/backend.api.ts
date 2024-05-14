@@ -1,7 +1,7 @@
-import { getBackendActor } from '$core/actors/actors.ic';
+import { getWalletBackendActor } from '$core/actors/actors.ic';
 import type { OptionIdentity } from '$core/types/identity';
 
-export const whoAmI = async (identity: OptionIdentity): Promise<string> => {
-	const { greet } = await getBackendActor({ identity });
-	return greet('');
+export const walletGreet = async (identity: OptionIdentity): Promise<string> => {
+	const { greet } = await getWalletBackendActor({ identity });
+	return greet('Yolo');
 };

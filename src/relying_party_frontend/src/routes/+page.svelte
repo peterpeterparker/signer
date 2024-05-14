@@ -1,16 +1,9 @@
 <script lang="ts">
 	import '$core/constants/app.constants';
-	import { whoAmI } from '$core/api/backend.api';
 	import { isNullish } from '@dfinity/utils';
 	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 	import { IcrcWallet } from '$lib/icrc-wallet';
-
-	$effect(() => {
-		(async () => {
-			const value = await whoAmI(undefined);
-			console.log(value);
-		})();
-	});
+	import Greetings from '$core/components/Greetings.svelte';
 
 	let wallet: IcrcWallet | undefined = $state(undefined);
 
@@ -22,6 +15,8 @@
 </script>
 
 <h1>Relying Party</h1>
+
+<Greetings />
 
 {#if isNullish(wallet)}
 	<button {onclick}>Connect Wallet</button>
