@@ -1,4 +1,8 @@
-import { WALLET_POPUP_HEIGHT, WALLET_POPUP_WIDTH } from '$core/constants/app.constants';
+import {
+	WALLET_BACKEND_CANISTER_ID,
+	WALLET_POPUP_HEIGHT,
+	WALLET_POPUP_WIDTH
+} from '$core/constants/app.constants';
 import {
 	ICRC25_REQUEST_PERMISSIONS,
 	ICRC27_GET_ACCOUNTS,
@@ -13,11 +17,13 @@ import {
 	type IcrcWalletScopesArrayType,
 	type IcrcWalletScopesType
 } from '$core/types/icrc';
+import { type IcrcWalletGreetingsRequestType } from '$core/types/icrc-demo';
 import { JSON_RPC_VERSION_2, RpcRequest } from '$core/types/rpc';
 import { popupTopRight } from '$core/utils/window.utils';
-import type { IcrcAccount } from '@dfinity/ledger-icrc';
+import { IDL } from '@dfinity/candid';
+import { encodeIcrcAccount, type IcrcAccount } from '@dfinity/ledger-icrc';
 import { Principal } from '@dfinity/principal';
-import { assertNonNullish, isNullish, nonNullish } from '@dfinity/utils';
+import { assertNonNullish, isNullish, nonNullish, uint8ArrayToArrayOfNumber } from '@dfinity/utils';
 
 export class IcrcWallet {
 	readonly #walletOrigin: string | undefined;
@@ -119,11 +125,7 @@ export class IcrcWallet {
 		});
 	}
 
-	// TODO: deprecated?
-	/**
-	 * @deprecated
-	 */
-	getAccounts = (): Promise<IcrcAccount[]> => {
+	greetings = ({ account }: { account: IcrcAccount }): Promise<IcrcAccount[]> => {
 		return new Promise<IcrcAccount[]>((resolve) => {
 			const popup = window.open(
 				'http://localhost:5174',
@@ -146,9 +148,17 @@ export class IcrcWallet {
 					const _notification = IcrcWalletNotification.parse(data);
 
 					// TODO: id with nanoid back and forth
-					const msg: IcrcWalletGetAccountsRequestType = {
+					const msg: IcrcWalletGreetingsRequestType = {
 						jsonrpc: JSON_RPC_VERSION_2,
-						method: ICRC27_GET_ACCOUNTS
+						method: ICRC49_CALL_CANISTER,
+						params: {
+							canisterId: WALLET_BACKEND_CANISTER_ID,
+							sender: encodeIcrcAccount(account),
+							method: 'greet',
+							arg: uint8ArrayToArrayOfNumber(
+								new Uint8Array(IDL.encode([IDL.Text], ['Awesome Bobby']))
+							)
+						}
 					};
 
 					popup?.postMessage(msg, { targetOrigin: this.#walletOrigin });

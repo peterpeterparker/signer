@@ -4,7 +4,7 @@
 	import SignOut from '$core/components/SignOut.svelte';
 	import { notSignedIn } from '$core/derived/auth.derived';
 	import { IcrcSigner } from '$lib/icrc-signer';
-	import { ICRC27_GET_ACCOUNTS, type IcrcWalletScopesArrayType } from '$core/types/icrc';
+	import { ICRC27_GET_ACCOUNTS, ICRC49_CALL_CANISTER, type IcrcWalletScopesArrayType } from '$core/types/icrc';
 	import { nonNullish } from '@dfinity/utils';
 	import { authStore } from '$core/stores/auth.store';
 
@@ -27,7 +27,7 @@
 		}
 
 		signer = IcrcSigner.init({
-			acceptMethods: [ICRC27_GET_ACCOUNTS],
+			acceptMethods: [ICRC27_GET_ACCOUNTS, ICRC49_CALL_CANISTER],
 			onRequestPermissions: (s) => {
 				console.log(s);
 

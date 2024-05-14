@@ -2,7 +2,7 @@
 	import { walletGreet } from '$core/api/backend.api';
 	import { IcrcWallet } from '$lib/icrc-wallet';
 	import { ICRC49_CALL_CANISTER } from '$core/types/icrc';
-	import { isNullish } from '@dfinity/utils';
+	import { assertNonNullish, isNullish } from '@dfinity/utils';
 
 	type Props = {
 		wallet: IcrcWallet | undefined;
@@ -22,11 +22,19 @@
 		}
 	};
 
-	const onclickApprove = async () => {};
+	let accounts = $derived(wallet?.accounts ?? []);
 
 	let disabled = $derived(
 		isNullish((wallet?.scopes ?? []).find(({ method }) => method === ICRC49_CALL_CANISTER))
 	);
+
+	const onclickApprove = async () => {
+		const account = $state.snapshot(accounts[0]);
+
+		assertNonNullish(account);
+
+		await wallet?.greetings({account});
+	};
 </script>
 
 <button {onclick}>Call Wallet Greetings: <strong>Directly</strong></button>

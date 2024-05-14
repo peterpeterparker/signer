@@ -3,6 +3,7 @@ import {
 	ICRC25_REQUEST_PERMISSIONS,
 	ICRC27_GET_ACCOUNTS,
 	ICRC29_READY,
+	ICRC49_CALL_CANISTER,
 	IcrcWalletGetAccountsResponse,
 	IcrcWalletPermissionsResponse,
 	type IcrcWalletGetAccountsRequestType,
@@ -12,6 +13,10 @@ import {
 	type IcrcWalletScopesArrayType,
 	type IcrcWalletSupportedMethodType
 } from '$core/types/icrc';
+import type {
+	IcrcWalletGreetingsParamsType,
+	IcrcWalletGreetingsRequestType
+} from '$core/types/icrc-demo';
 import { JSON_RPC_VERSION_2 } from '$core/types/rpc';
 import { assertNonNullish, nonNullish } from '@dfinity/utils';
 import { get } from 'svelte/store';
@@ -83,6 +88,10 @@ export class IcrcSigner {
 		this.callbackOnRequestPermissions(acceptableScopes);
 	}
 
+	private async onGreetings(params: IcrcWalletGreetingsParamsType | undefined) {
+		console.log(params);
+	}
+
 	private onGetAccounts() {
 		const owner = get(authStore)?.identity?.getPrincipal();
 
@@ -104,11 +113,15 @@ export class IcrcSigner {
 		window.opener.postMessage(msg, { targetOrigin: this.walletOrigin });
 	}
 
-	private onMessage = ({
+	private onMessage = async ({
 		data,
 		origin
 	}: MessageEvent<
-		Partial<IcrcWalletPermissionsRequestType | IcrcWalletGetAccountsRequestType>
+		Partial<
+			| IcrcWalletPermissionsRequestType
+			| IcrcWalletGetAccountsRequestType
+			| IcrcWalletGreetingsRequestType
+		>
 	>) => {
 		if (nonNullish(this.walletOrigin) && this.walletOrigin !== origin) {
 			// TODO error
@@ -125,6 +138,9 @@ export class IcrcSigner {
 				break;
 			case ICRC27_GET_ACCOUNTS:
 				this.onGetAccounts();
+				break;
+			case ICRC49_CALL_CANISTER:
+				await this.onGreetings(data?.params);
 				break;
 		}
 	};
