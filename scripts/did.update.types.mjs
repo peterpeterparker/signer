@@ -100,7 +100,7 @@ const copyCertifiedFactory = async ({ dest = `./src/declarations` }) => {
 
 					const certifiedFactoryPath = join(dest, dir, `${dir}.factory.certified.did.js`);
 
-					await writeFile(certifiedFactoryPath, content.toString().replace(/\['query']/g, ''));
+					await writeFile(certifiedFactoryPath, content.toString().replace(/\['query']/g, '[]'));
 
 					resolve();
 				})
