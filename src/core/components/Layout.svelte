@@ -6,6 +6,15 @@
 	import SignOut from '$core/components/SignOut.svelte';
 	import { fade } from 'svelte/transition';
 
+	type Props = {
+		size?: {
+			width: number;
+			height: number;
+		};
+	};
+
+	let { size } = $props<Props>();
+
 	const init = async () => await Promise.all([syncAuthStore()]);
 
 	const syncAuthStore = async () => {
@@ -37,7 +46,7 @@
 			</div>
 		{:else}
 			<div in:fade>
-				<SignIn />
+				<SignIn {size} />
 			</div>
 		{/if}
 	{/await}

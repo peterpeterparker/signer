@@ -19,6 +19,10 @@ let authClient: AuthClient | undefined | null;
 
 export interface AuthSignInParams {
 	domain?: 'ic0.app' | 'internetcomputer.org';
+	size?: {
+		width: number;
+		height: number;
+	};
 }
 
 export interface AuthStore extends Readable<AuthStoreData> {
@@ -44,7 +48,7 @@ const initAuthStore = (): AuthStore => {
 			});
 		},
 
-		signIn: ({ domain }: AuthSignInParams) =>
+		signIn: ({ domain, size }: AuthSignInParams) =>
 			// eslint-disable-next-line no-async-promise-executor
 			new Promise<void>(async (resolve, reject) => {
 				authClient = authClient ?? (await createAuthClient());
@@ -67,7 +71,10 @@ const initAuthStore = (): AuthStore => {
 					},
 					onError: reject,
 					identityProvider,
-					windowOpenerFeatures: popupCenter({ width: AUTH_POPUP_WIDTH, height: AUTH_POPUP_HEIGHT })
+					windowOpenerFeatures: popupCenter({
+						width: size?.width ?? AUTH_POPUP_WIDTH,
+						height: size?.height ?? AUTH_POPUP_HEIGHT
+					})
 				});
 			}),
 
