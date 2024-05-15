@@ -8,9 +8,11 @@
 		type IcrcBlobType,
 		type IcrcWalletScopesArrayType
 	} from '$core/types/icrc';
-	import { assertNonNullish, nonNullish } from '@dfinity/utils';
+	import { assertNonNullish, isNullish, nonNullish } from '@dfinity/utils';
 	import { authStore } from '$core/stores/auth.store';
 	import type { Result } from '$declarations/wallet_backend/wallet_backend.did';
+	import Approve from '$core/components/Approve.svelte';
+	import { fade } from 'svelte/transition';
 
 	let scopes: IcrcWalletScopesArrayType | undefined = $state(undefined);
 	let displayMessage: string | undefined = $state(undefined);
@@ -62,32 +64,38 @@
 	};
 </script>
 
-<h1>Wallet</h1>
+<p class="font-bold text-sm">User ID:</p>
+<p class="text-sm"><output>{$authStore?.identity?.getPrincipal().toText() ?? ''}</output></p>
 
-<p>User ID: {$authStore?.identity?.getPrincipal().toText() ?? ''}</p>
-
-<hr />
+{#if isNullish(scopes) && isNullish(displayMessage)}
+	<p class="animate-pulse text-sm mt-4">Communicating...</p>
+{/if}
 
 {#if nonNullish(scopes)}
-	<h2>Grant Permissions</h2>
+	<form {onsubmit} method="POST" class="bg-grey rounded-md px-4 py-6 mt-4 max-w-xl" in:fade>
+		<p class="font-bold">Grant Permissions</p>
 
-	<form {onsubmit} method="POST">
-		<ul>
+		<ul class="mt-2 mb-4 text-sm list-disc px-4">
 			{#each scopes as scope}
 				<li>{scope.method}</li>
 			{/each}
 		</ul>
 
-		<button>Approve</button>
+		<Approve>Approve</Approve>
 	</form>
 {/if}
 
 {#if nonNullish(displayMessage)}
-	<h2>Approve the following action?</h2>
+	<form
+		onsubmit={onsubmitCall}
+		method="POST"
+		class="bg-grey rounded-md px-4 py-6 mt-4 max-w-xl"
+		in:fade
+	>
+		<p class="font-bold">Approve the following action?</p>
 
-	<form onsubmit={onsubmitCall} method="POST">
-		<p>{displayMessage}</p>
+		<p class="text-sm">{displayMessage}</p>
 
-		<button>Approve</button>
+		<Approve>Approve</Approve>
 	</form>
 {/if}

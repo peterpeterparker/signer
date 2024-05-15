@@ -4,6 +4,8 @@
 	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 	import { IcrcWallet } from '$lib/icrc-wallet';
 	import Greetings from '$lib/components/Greetings.svelte';
+	import Button from '$core/components/Button.svelte';
+	import { fade } from 'svelte/transition';
 
 	let wallet: IcrcWallet | undefined = $state(undefined);
 
@@ -14,20 +16,18 @@
 	let accounts = $derived(wallet?.accounts ?? []);
 </script>
 
-<h1>Relying Party</h1>
-
 {#if isNullish(wallet)}
-	<button {onclick}>Connect Wallet</button>
+	<Button {onclick}>Connect Wallet</Button>
 {:else}
-	<p>Accounts:</p>
+	<div in:fade>
+		<p class="font-bold mt-2">Accounts:</p>
 
-	<ul>
-		{#each accounts as account}
-			<li>{encodeIcrcAccount(account)}</li>
-		{/each}
-	</ul>
+		<ul>
+			{#each accounts as account}
+				<li>{encodeIcrcAccount(account)}</li>
+			{/each}
+		</ul>
+	</div>
 {/if}
-
-<hr />
 
 <Greetings {wallet} />

@@ -4,6 +4,7 @@
 	import { signedIn } from '$core/derived/auth.derived';
 	import SignIn from '$core/components/SignIn.svelte';
 	import SignOut from '$core/components/SignOut.svelte';
+	import { fade } from 'svelte/transition';
 
 	const init = async () => await Promise.all([syncAuthStore()]);
 
@@ -22,15 +23,22 @@
 
 <svelte:window on:storage={syncAuthStore} />
 
-{#await init()}
-	<p>Loading...</p>
-{:then _}
-	{#if $signedIn}
-		<slot />
+<main class="w-[100%] h-[100%] p-8">
+	<h1 class="text-4xl pb-4 underline underline-offset-8"><slot name="title" /></h1>
 
-		<hr />
-		<SignOut />
-	{:else}
-		<SignIn />
-	{/if}
-{/await}
+	{#await init()}
+		<p class="animate-pulse text-sm">Loading...</p>
+	{:then _}
+		{#if $signedIn}
+			<div in:fade>
+				<slot />
+
+				<SignOut />
+			</div>
+		{:else}
+			<div in:fade>
+				<SignIn />
+			</div>
+		{/if}
+	{/await}
+</main>
