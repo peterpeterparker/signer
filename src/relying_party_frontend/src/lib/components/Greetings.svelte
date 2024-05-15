@@ -19,7 +19,7 @@
 		try {
 			greetings = await walletGreet({
 				identity: $authStore.identity,
-				args: "Wallet Jimmy"
+				args: 'Wallet Jimmy'
 			});
 		} catch (err) {
 			greetings = `${err}`;
@@ -39,7 +39,7 @@
 
 		assertNonNullish(account);
 
-		greetings = await wallet?.greetings({account});
+		greetings = await wallet?.greetings({ account });
 	};
 </script>
 
