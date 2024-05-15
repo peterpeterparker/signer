@@ -10,7 +10,7 @@ Signer standards:
 
 TODOs:
 
-- Create one library with three modules:
+- Create one opinionated library with three modules:
   - Types
   - Wallet
   - Signer
