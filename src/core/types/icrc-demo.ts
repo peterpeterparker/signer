@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { ICRC49_CALL_CANISTER, IcrcBlob, IcrcWalletGetAccountsRequest, IcrcWalletMethod } from './icrc';
-import { inferRpcResponse, RpcRequest } from './rpc';
+import { ICRC49_CALL_CANISTER, IcrcBlob, IcrcWalletMethod } from './icrc';
+import { RpcRequest, inferRpcResponse } from './rpc';
 
 // TODO: regex for canisterId and principal?
 const IcrcWalletGreetingsParams = z.object({
@@ -25,6 +25,6 @@ export type IcrcWalletGreetingsRequestType = z.infer<typeof IcrcWalletGreetingsR
 // https://github.com/dfinity/wg-identity-authentication/blob/main/topics/icrc_49_call_canister.md#result
 const DummyResponse = z.object({
 	message: z.string()
-})
+});
 
 export const IcrcWalletGreetingsResponse = inferRpcResponse(DummyResponse);

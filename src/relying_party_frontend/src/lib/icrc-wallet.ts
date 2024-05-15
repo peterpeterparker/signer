@@ -17,7 +17,10 @@ import {
 	type IcrcWalletScopesArrayType,
 	type IcrcWalletScopesType
 } from '$core/types/icrc';
-import { type IcrcWalletGreetingsRequestType, IcrcWalletGreetingsResponse } from '$core/types/icrc-demo';
+import {
+	IcrcWalletGreetingsResponse,
+	type IcrcWalletGreetingsRequestType
+} from '$core/types/icrc-demo';
 import { JSON_RPC_VERSION_2, RpcRequest } from '$core/types/rpc';
 import { popupTopRight } from '$core/utils/window.utils';
 import { IDL } from '@dfinity/candid';
@@ -167,7 +170,7 @@ export class IcrcWallet {
 
 				console.log(data);
 
-				const {result} = IcrcWalletGreetingsResponse.parse(data);
+				const { result } = IcrcWalletGreetingsResponse.parse(data);
 
 				// TODO: handle error
 				assertNonNullish(result);

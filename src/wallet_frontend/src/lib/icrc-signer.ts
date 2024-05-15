@@ -2,38 +2,45 @@ import { walletConsentMessage, walletGreet } from '$core/api/backend.api';
 import { authStore } from '$core/stores/auth.store';
 import {
 	ICRC25_REQUEST_PERMISSIONS,
+	ICRC25_SUPPORTED_STANDARDS,
 	ICRC27_GET_ACCOUNTS,
 	ICRC29_READY,
 	ICRC49_CALL_CANISTER,
+	IcrcSupportedStandardsResponse,
 	IcrcWalletGetAccountsResponse,
 	IcrcWalletPermissionsResponse,
+	type IcrcBlobType,
 	type IcrcWalletGetAccountsRequestType,
 	type IcrcWalletNotificationType,
 	type IcrcWalletPermissionsRequestType,
 	type IcrcWalletRequestParamsType,
 	type IcrcWalletScopesArrayType,
-	type IcrcWalletSupportedMethodType, type IcrcBlobType
+	type IcrcWalletStandardsRequestType,
+	type IcrcWalletSupportedMethodType
 } from '$core/types/icrc';
 import {
+	IcrcWalletGreetingsResponse,
 	type IcrcWalletGreetingsParamsType,
-	type IcrcWalletGreetingsRequestType, IcrcWalletGreetingsResponse
+	type IcrcWalletGreetingsRequestType
 } from '$core/types/icrc-demo';
+import type { OptionIdentity } from '$core/types/identity';
 import { JSON_RPC_VERSION_2 } from '$core/types/rpc';
 import type { Result } from '$declarations/wallet_backend/wallet_backend.did';
 import { IDL } from '@dfinity/candid';
 import {
 	arrayOfNumberToUint8Array,
-	assertNonNullish, isNullish,
+	assertNonNullish,
+	isNullish,
 	nonNullish,
 	toNullable
 } from '@dfinity/utils';
 import { get } from 'svelte/store';
-import type { OptionIdentity } from '$core/types/identity';
 
 interface IcrcSignerInit {
+	// TODO: if we provide an opinionated lib, maybe acceptMethods should be fixed?
 	acceptMethods: IcrcWalletSupportedMethodType[];
 	onRequestPermissions: (scopes: IcrcWalletScopesArrayType) => void;
-	onGreetings: (params: {message: Result, arg: IcrcBlobType}) => void;
+	onGreetings: (params: { message: Result; arg: IcrcBlobType }) => void;
 }
 
 export class IcrcSigner {
@@ -41,7 +48,7 @@ export class IcrcSigner {
 
 	readonly #acceptMethods: IcrcWalletSupportedMethodType[];
 	readonly #callbackOnRequestPermissions: (scopes: IcrcWalletScopesArrayType) => void;
-	readonly #callbackOnGreetings: (params: {message: Result, arg: IcrcBlobType}) => void;
+	readonly #callbackOnGreetings: (params: { message: Result; arg: IcrcBlobType }) => void;
 
 	private constructor({ acceptMethods, onRequestPermissions, onGreetings }: IcrcSignerInit) {
 		this.#acceptMethods = acceptMethods;
@@ -101,6 +108,33 @@ export class IcrcSigner {
 		this.#callbackOnRequestPermissions(acceptableScopes);
 	}
 
+	private onSupportedStandards() {
+		// TODO: it's a bit unpractical to have a fixed onMessage switch and a static list here as well.
+		// Maybe we can handle this with a more dynamic pattern without compromising on performance
+
+		const msg = IcrcSupportedStandardsResponse.parse({
+			jsonrpc: JSON_RPC_VERSION_2,
+			result: {
+				supportedStandards: [
+					{
+						name: 'ICRC-25',
+						url: 'https://github.com/dfinity/ICRC/blob/main/ICRCs/ICRC-25/ICRC-25.md'
+					},
+					{
+						name: 'ICRC-27',
+						url: 'https://github.com/dfinity/ICRC/blob/main/ICRCs/ICRC-27/ICRC-27.md'
+					},
+					{
+						name: 'ICRC-49',
+						url: 'https://github.com/dfinity/ICRC/blob/main/ICRCs/ICRC-49/ICRC-49.md'
+					}
+				]
+			}
+		});
+
+		window.opener.postMessage(msg, { targetOrigin: this.#walletOrigin });
+	}
+
 	private async onGreetings(params: IcrcWalletGreetingsParamsType | undefined) {
 		// TODO: handle error
 		assertNonNullish(params);
@@ -123,7 +157,7 @@ export class IcrcSigner {
 			}
 		});
 
-		this.#callbackOnGreetings({message, arg});
+		this.#callbackOnGreetings({ message, arg });
 	}
 
 	private onGetAccounts() {
@@ -148,7 +182,7 @@ export class IcrcSigner {
 	}
 
 	// TODO: id back and forth
-	approveGreetings = async ({identity, arg}: {identity: OptionIdentity, arg: IcrcBlobType}) => {
+	approveGreetings = async ({ identity, arg }: { identity: OptionIdentity; arg: IcrcBlobType }) => {
 		// TODO: according Frederik we should not decode the args and use agent-js standard DX to make calls
 		const [args] = IDL.decode([IDL.Text], arrayOfNumberToUint8Array(arg));
 		assertNonNullish(args);
@@ -177,6 +211,7 @@ export class IcrcSigner {
 	}: MessageEvent<
 		Partial<
 			| IcrcWalletPermissionsRequestType
+			| IcrcWalletStandardsRequestType
 			| IcrcWalletGetAccountsRequestType
 			| IcrcWalletGreetingsRequestType
 		>
@@ -194,6 +229,9 @@ export class IcrcSigner {
 		switch (method) {
 			case ICRC25_REQUEST_PERMISSIONS:
 				this.onRequestPermissions(data?.params);
+				break;
+			case ICRC25_SUPPORTED_STANDARDS:
+				this.onSupportedStandards();
 				break;
 			case ICRC27_GET_ACCOUNTS:
 				this.onGetAccounts();
