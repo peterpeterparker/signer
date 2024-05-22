@@ -1,6 +1,6 @@
 [workspace]
 members = [
     "src/relying_party_backend",
-    "src/wallet_backend"
-]
+    "src/wallet_backend",
+    "src/wallet_signer"]
 resolver = "2"
