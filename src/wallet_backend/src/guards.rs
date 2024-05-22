@@ -1,7 +1,7 @@
+use crate::wallet_types::OwnerId;
+use crate::STATE;
 use candid::Principal;
 use ic_cdk::caller;
-use crate::STATE;
-use crate::wallet_types::OwnerId;
 
 pub fn caller_is_owner() -> Result<(), String> {
     let caller = caller();
@@ -15,7 +15,5 @@ pub fn caller_is_owner() -> Result<(), String> {
 }
 
 fn is_owner(caller: Principal, owners: &Vec<OwnerId>) -> bool {
-    owners
-        .iter()
-        .any(|&owner_id| owner_id == caller)
+    owners.iter().any(|&owner_id| owner_id == caller)
 }

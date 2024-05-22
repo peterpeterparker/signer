@@ -1,5 +1,4 @@
 /// Source: https://github.com/dfinity/wg-identity-authentication/blob/main/reference-implementations/ICRC-21/src/icrc21_types.rs
-
 use candid::{self, CandidType, Deserialize};
 
 #[derive(CandidType, Deserialize, Eq, PartialEq, Debug)]

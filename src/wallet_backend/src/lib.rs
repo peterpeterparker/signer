@@ -1,22 +1,22 @@
-use candid::decode_one;
-use ic_cdk::{export_candid, init, post_upgrade, pre_upgrade, query, storage, update};
-use ic_cdk::api::call::{arg_data, ArgDecoderConfig};
+use crate::guards::caller_is_owner;
 use crate::icrc21_types::{
-    Icrc21ConsentInfo, Icrc21ConsentMessage, Icrc21ConsentMessageMetadata,
+    Icrc10SupportedStandard, Icrc21ConsentInfo, Icrc21ConsentMessage, Icrc21ConsentMessageMetadata,
     Icrc21ConsentMessageRequest, Icrc21DeviceSpec, Icrc21Error, Icrc21ErrorInfo,
-    Icrc21LineDisplayPage, Icrc10SupportedStandard,
+    Icrc21LineDisplayPage,
 };
+use crate::wallet_types::{HeapState, State, WalletArgs};
+use candid::decode_one;
+use ic_cdk::api::call::{arg_data, ArgDecoderConfig};
+use ic_cdk::storage::stable_restore;
+use ic_cdk::{export_candid, init, post_upgrade, pre_upgrade, query, storage, update};
 use itertools::Itertools;
+use std::cell::RefCell;
 use Icrc21DeviceSpec::GenericDisplay;
 use Icrc21Error::UnsupportedCanisterCall;
-use crate::wallet_types::{HeapState, State, WalletArgs};
-use std::cell::RefCell;
-use ic_cdk::storage::stable_restore;
-use crate::guards::{caller_is_owner};
 
+mod guards;
 mod icrc21_types;
 mod wallet_types;
-mod guards;
 
 thread_local! {
     pub static STATE: RefCell<State> = RefCell::default();
@@ -27,14 +27,10 @@ pub fn init() {
     let call_arg = arg_data::<(Option<WalletArgs>,)>(ArgDecoderConfig::default()).0;
     let WalletArgs { owners } = call_arg.unwrap();
 
-    let heap = HeapState {
-        owners
-    };
+    let heap = HeapState { owners };
 
     STATE.with(|state| {
-        *state.borrow_mut() = State {
-            heap,
-        };
+        *state.borrow_mut() = State { heap };
     });
 }
 
@@ -88,9 +84,9 @@ fn icrc21_canister_call_consent_message(
 
     match consent_msg_request.user_preferences.device_spec {
         Some(Icrc21DeviceSpec::LineDisplay {
-                 characters_per_line,
-                 lines_per_page,
-             }) => Ok(Icrc21ConsentInfo {
+            characters_per_line,
+            lines_per_page,
+        }) => Ok(Icrc21ConsentInfo {
             metadata,
             consent_message: Icrc21ConsentMessage::LineDisplayMessage {
                 pages: consent_msg_text_pages(
