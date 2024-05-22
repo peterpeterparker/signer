@@ -1,5 +1,5 @@
 use candid::decode_one;
-use ic_cdk::{export_candid, init, query, update};
+use ic_cdk::{export_candid, init, post_upgrade, pre_upgrade, query, storage, update};
 use ic_cdk::api::call::{arg_data, ArgDecoderConfig};
 use crate::icrc21_types::{
     Icrc21ConsentInfo, Icrc21ConsentMessage, Icrc21ConsentMessageMetadata,
@@ -11,6 +11,7 @@ use Icrc21DeviceSpec::GenericDisplay;
 use Icrc21Error::UnsupportedCanisterCall;
 use crate::wallet_types::{HeapState, State, WalletArgs};
 use std::cell::RefCell;
+use ic_cdk::storage::stable_restore;
 use crate::guards::{caller_is_owner};
 
 mod icrc21_types;
@@ -35,6 +36,20 @@ pub fn init() {
             heap,
         };
     });
+}
+
+#[pre_upgrade]
+fn pre_upgrade() {
+    STATE.with(|state| storage::stable_save((&state.borrow().heap,)).unwrap());
+}
+
+#[post_upgrade]
+fn post_upgrade() {
+    let (upgrade_stable,): (HeapState,) = stable_restore().unwrap();
+
+    let heap = HeapState::from(upgrade_stable);
+
+    STATE.with(|state| *state.borrow_mut() = State { heap });
 }
 
 #[query(guard = "caller_is_owner")]
