@@ -1,4 +1,5 @@
 {
+	"dfx": "0.18.0",
 	"canisters": {
 		"relying_party_backend": {
 			"candid": "src/relying_party_backend/relying_party_backend.did",
@@ -26,6 +27,26 @@
 			"remote": {
 				"id": {
 					"ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+				}
+			}
+		},
+		"icp_ledger": {
+			"type": "custom",
+			"candid": "target/ic/icp_ledger.did",
+			"wasm": "target/ic/icp_ledger.wasm",
+			"remote": {
+				"id": {
+					"ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+				}
+			}
+		},
+		"icp_index": {
+			"type": "custom",
+			"candid": "target/ic/icp_index.did",
+			"wasm": "target/ic/icp_index.wasm",
+			"remote": {
+				"id": {
+					"ic": "qhbym-qaaaa-aaaaa-aaafq-cai"
 				}
 			}
 		}
