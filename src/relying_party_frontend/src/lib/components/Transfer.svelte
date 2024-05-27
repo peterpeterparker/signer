@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { IcrcWallet } from '$lib/icrc-wallet';
-	import { assertNonNullish, createAgent, principalToSubAccount } from '@dfinity/utils';
+	import { assertNonNullish, createAgent } from '@dfinity/utils';
 	import { authStore } from '$core/stores/auth.store';
 	import { AccountIdentifier, LedgerCanister, SubAccount } from '@dfinity/ledger-icp';
 	import {
@@ -9,6 +9,7 @@
 	} from '$core/constants/app.constants';
 	import { Principal } from '@dfinity/principal';
 	import { formatE8sICP } from '$core/utils/icp.utils';
+	import WalletAction from '$lib/components/WalletAction.svelte';
 
 	type Props = {
 		wallet: IcrcWallet | undefined;
@@ -45,10 +46,16 @@
 			await loadBalance();
 		})();
 	});
+
+	const onclickApprove = async () => {};
 </script>
 
 <div class="bg-grey rounded-md px-4 py-6 mt-8 max-w-xl">
 	<p class="font-bold">Test: ICRC Approve / Transfer From</p>
 
 	<p>Current balance: {formatE8sICP(balance)} ICP</p>
+
+	<div class="flex gap-2">
+		<WalletAction {wallet} {onclickApprove}>Approve 5 ICP</WalletAction>
+	</div>
 </div>

@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { walletGreet } from '$core/api/backend.api';
 	import { IcrcWallet } from '$lib/icrc-wallet';
-	import { ICRC49_CALL_CANISTER } from '$core/types/icrc';
-	import { assertNonNullish, isNullish } from '@dfinity/utils';
+	import { assertNonNullish } from '@dfinity/utils';
 	import { authStore } from '$core/stores/auth.store';
 	import Button from '$core/components/Button.svelte';
-	import Action from '$core/components/Action.svelte';
+	import WalletAction from '$lib/components/WalletAction.svelte';
 
 	type Props = {
 		wallet: IcrcWallet | undefined;
@@ -30,10 +29,6 @@
 
 	let accounts = $derived(wallet?.accounts ?? []);
 
-	let disabled = $derived(
-		isNullish((wallet?.scopes ?? []).find(({ method }) => method === ICRC49_CALL_CANISTER))
-	);
-
 	const onclickApprove = async () => {
 		greetings = 'Calling...';
 
@@ -51,7 +46,7 @@
 	<div class="flex gap-2">
 		<Button {onclick}>Direct call</Button>
 
-		<Action onclick={onclickApprove} {disabled}>Wallet approval</Action>
+		<WalletAction {wallet} {onclickApprove}>Wallet approval</WalletAction>
 	</div>
 
 	<div class="flex flex-col gap-2 mt-2">
