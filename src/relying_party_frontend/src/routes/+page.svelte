@@ -6,6 +6,7 @@
 	import Greetings from '$lib/components/Greetings.svelte';
 	import Button from '$core/components/Button.svelte';
 	import { fade } from 'svelte/transition';
+	import Transfer from '$lib/components/Transfer.svelte';
 
 	let wallet: IcrcWallet | undefined = $state(undefined);
 
@@ -31,3 +32,5 @@
 {/if}
 
 <Greetings {wallet} />
+
+<Transfer {wallet} />

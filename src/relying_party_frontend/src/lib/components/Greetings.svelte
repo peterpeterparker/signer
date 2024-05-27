@@ -46,7 +46,7 @@
 </script>
 
 <div class="bg-grey rounded-md px-4 py-6 mt-8 max-w-xl">
-	<p class="font-bold">Test: Wallet's Greetings</p>
+	<p class="font-bold">Test: Call Greetings</p>
 
 	<div class="flex gap-2">
 		<Button {onclick}>Direct call</Button>
