@@ -1,4 +1,5 @@
 import {
+	ICP_LEDGER_CANISTER_ID,
 	WALLET_BACKEND_CANISTER_ID,
 	WALLET_POPUP_HEIGHT,
 	WALLET_POPUP_WIDTH
@@ -24,8 +25,11 @@ import {
 	type IcrcWalletGreetingsResponseType
 } from '$core/types/icrc-demo';
 import { JSON_RPC_VERSION_2, RpcRequest } from '$core/types/rpc';
+import { nowInBigIntNanoSeconds } from '$core/utils/date.utils';
+import { toArray } from '$core/utils/did.utils';
 import { popupTopRight } from '$core/utils/window.utils';
 import { IDL } from '@dfinity/candid';
+import type { Icrc1Account, Icrc2ApproveRequest } from '@dfinity/ledger-icp';
 import { encodeIcrcAccount, type IcrcAccount } from '@dfinity/ledger-icrc';
 import { Principal } from '@dfinity/principal';
 import { assertNonNullish, isNullish, nonNullish, uint8ArrayToArrayOfNumber } from '@dfinity/utils';
@@ -189,6 +193,35 @@ export class IcrcWallet {
 				sender: encodeIcrcAccount(account),
 				method: 'greet',
 				arg: uint8ArrayToArrayOfNumber(new Uint8Array(IDL.encode([IDL.Text], ['Awesome Bobby'])))
+			},
+			parse: (data): IcrcWalletGreetingsResponseType => IcrcWalletGreetingsResponse.parse(data)
+		});
+
+		// TODO: handle error
+		assertNonNullish(result);
+
+		return result.message;
+	};
+
+	approve = async ({
+		account,
+		spender
+	}: {
+		account: IcrcAccount;
+		spender: Icrc1Account;
+	}): Promise<string> => {
+		const arg: Icrc2ApproveRequest = {
+			spender,
+			amount: BigInt(5_000_000_000),
+			expires_at: nowInBigIntNanoSeconds()
+		};
+
+		const { result } = await this.callCanister({
+			params: {
+				canisterId: ICP_LEDGER_CANISTER_ID,
+				sender: encodeIcrcAccount(account),
+				method: 'icrc2_approve',
+				arg: uint8ArrayToArrayOfNumber(await toArray(arg))
 			},
 			parse: (data): IcrcWalletGreetingsResponseType => IcrcWalletGreetingsResponse.parse(data)
 		});

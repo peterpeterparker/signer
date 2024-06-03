@@ -1,8 +1,13 @@
 <script lang="ts">
 	import { IcrcWallet } from '$lib/icrc-wallet';
-	import { assertNonNullish, createAgent } from '@dfinity/utils';
+	import { assertNonNullish, createAgent, principalToSubAccount, toNullable } from '@dfinity/utils';
 	import { authStore } from '$core/stores/auth.store';
-	import { AccountIdentifier, LedgerCanister, SubAccount } from '@dfinity/ledger-icp';
+	import {
+		AccountIdentifier,
+		type Icrc1Account,
+		LedgerCanister,
+		SubAccount
+	} from '@dfinity/ledger-icp';
 	import {
 		ICP_LEDGER_CANISTER_ID,
 		RELYING_PARTY_BACKEND_CANISTER_ID
@@ -47,7 +52,20 @@
 		})();
 	});
 
-	const onclickApprove = async () => {};
+	let accounts = $derived(wallet?.accounts ?? []);
+
+	const onclickApprove = async () => {
+		assertNonNullish($authStore.identity);
+
+		const account = $state.snapshot(accounts[0]);
+
+		const spender: Icrc1Account = {
+			owner: Principal.fromText(RELYING_PARTY_BACKEND_CANISTER_ID),
+			subaccount: toNullable(principalToSubAccount($authStore.identity.getPrincipal()))
+		};
+
+		await wallet?.approve({ account, spender });
+	};
 </script>
 
 <div class="bg-grey rounded-md px-4 py-6 mt-8 max-w-xl">
