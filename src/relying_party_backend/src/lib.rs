@@ -1,7 +1,7 @@
 use candid::Principal;
 use ic_cdk::{call, caller, export_candid, id, query, trap, update};
-use icrc_ledger_types::icrc1::transfer::{BlockIndex, TransferError};
-use icrc_ledger_types::icrc2::transfer_from::{TransferFromArgs};
+use icrc_ledger_types::icrc1::transfer::{BlockIndex};
+use icrc_ledger_types::icrc2::transfer_from::{TransferFromArgs, TransferFromError};
 use candid::{Nat};
 use icrc_ledger_types::icrc1::account::{Account, Subaccount};
 
@@ -35,8 +35,8 @@ async fn transfer(from: Account, amount: Nat) {
         from
     };
 
-    let (result,): (Result<BlockIndex, TransferError>,) =
-        call::<(TransferFromArgs,), (Result<BlockIndex, TransferError>,)>(ledger_canister_id, "icrc2_transfer_from", (args,))
+    let (result,): (Result<BlockIndex, TransferFromError>,) =
+        call::<(TransferFromArgs,), (Result<BlockIndex, TransferFromError>,)>(ledger_canister_id, "icrc2_transfer_from", (args,))
             .await
             .map_err(|(_, e)| e)
             .unwrap();
