@@ -8,6 +8,7 @@
 	import WalletAction from '$lib/components/WalletAction.svelte';
 	import Balance from '$core/components/Balance.svelte';
 	import { transfer } from '$core/api/relying-party-backend.api';
+	import { icpLedgerAllowance } from '$core/api/icp-ledger.api';
 
 	type Props = {
 		wallet: IcrcWallet | undefined;
@@ -33,14 +34,26 @@
 
 		const from = $state.snapshot(accounts[0]);
 
-		let amount = 5_000_000_000n;
+		const amount = 5_000_000n;
+		const fee = 10_000n;
 
 		const spender: Icrc1Account = {
 			owner: Principal.fromText(RELYING_PARTY_BACKEND_CANISTER_ID),
 			subaccount: toNullable(principalToSubAccount($authStore.identity.getPrincipal()))
 		};
 
-		await wallet?.approve({ account: from, spender, amount });
+		await wallet?.approve({ account: from, spender, amount: amount + fee });
+
+		const allowance = await icpLedgerAllowance({
+			identity: $authStore.identity,
+			account: {
+				owner: from.owner,
+				subaccount: toNullable(from.subaccount)
+			},
+			spender
+		});
+
+		console.log('Allowance:', allowance);
 
 		await transfer({
 			identity: $authStore.identity,

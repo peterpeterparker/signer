@@ -14,15 +14,17 @@ fn greet(name: String) -> String {
 async fn transfer(from: Account, amount: Nat) {
     let ledger_canister_id = Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap();
 
+    let subaccount = Some(principal_to_subaccount(&caller()));
+
     let args: TransferFromArgs = TransferFromArgs {
         amount,
         created_at_time: None,
         fee: None,
         memo: None,
-        spender_subaccount: None,
+        spender_subaccount: subaccount.clone(),
         to: Account {
             owner: id(),
-            subaccount: Some(principal_to_subaccount(&caller())),
+            subaccount,
         },
         from,
     };
