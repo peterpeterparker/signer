@@ -6,6 +6,7 @@
 		ICRC27_GET_ACCOUNTS,
 		ICRC49_CALL_CANISTER,
 		type IcrcBlobType,
+		type IcrcWalletCallCanisterParamsType,
 		type IcrcWalletScopesArrayType
 	} from '$core/types/icrc';
 	import { assertNonNullish, isNullish, nonNullish } from '@dfinity/utils';
@@ -16,7 +17,8 @@
 
 	let scopes: IcrcWalletScopesArrayType | undefined = $state(undefined);
 	let displayMessage: string | undefined = $state(undefined);
-	let arg: IcrcBlobType | undefined = $state(undefined);
+	let callParams: Pick<IcrcWalletCallCanisterParamsType, 'arg' | 'method'> | undefined =
+		$state(undefined);
 
 	let signer: IcrcSigner | undefined;
 
@@ -34,7 +36,13 @@
 
 				scopes = s;
 			},
-			onCallCanister: ({ message, arg: params }: { message: Result; arg: IcrcBlobType }) => {
+			onCallCanister: ({
+				message,
+				callParams: params
+			}: {
+				message: Result;
+				callParams: Pick<IcrcWalletCallCanisterParamsType, 'arg' | 'method'>;
+			}) => {
 				// TODO: happy path
 				if ('Err' in message) {
 					throw new Error('Error consent message');
@@ -43,7 +51,7 @@
 				displayMessage = (message.Ok.consent_message as { GenericDisplayMessage: string })
 					.GenericDisplayMessage;
 
-				arg = params;
+				callParams = params;
 			}
 		});
 	});
@@ -58,9 +66,20 @@
 		$event.preventDefault();
 
 		// TODO: happy path
-		assertNonNullish(arg);
+		assertNonNullish(callParams);
 
-		signer?.approveGreetings({ identity: $authStore.identity, arg });
+		const {arg, method} = callParams;
+
+		switch (method) {
+			case "greet": {
+				signer?.greetings({ identity: $authStore.identity, arg });
+				break;
+			}
+			case "icrc2_approve": {
+				signer?.approve({ identity: $authStore.identity, arg });
+				break;
+			}
+		}
 	};
 </script>
 
