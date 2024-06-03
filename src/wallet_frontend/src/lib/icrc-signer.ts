@@ -1,5 +1,7 @@
+import { createAgent } from '$core/actors/agents.ic';
 import { walletConsentMessage, walletGreet } from '$core/api/backend.api';
 import { icpLedgerConsentMessage } from '$core/api/icp-ledger.api';
+import { ICP_LEDGER_CANISTER_ID } from '$core/constants/app.constants';
 import { authStore } from '$core/stores/auth.store';
 import {
 	ICRC25_REQUEST_PERMISSIONS,
@@ -30,8 +32,9 @@ import type {
 	icrc21_consent_message_response
 } from '$declarations/icp_ledger/icp_ledger.did';
 import type { Result } from '$declarations/wallet_backend/wallet_backend.did';
+import { AnonymousIdentity } from '@dfinity/agent';
 import { IDL } from '@dfinity/candid';
-import { type Icrc2ApproveRequest, LedgerCanister } from '@dfinity/ledger-icp';
+import { LedgerCanister, type Icrc2ApproveRequest } from '@dfinity/ledger-icp';
 import {
 	arrayOfNumberToUint8Array,
 	assertNonNullish,
@@ -41,15 +44,15 @@ import {
 	uint8ArrayToArrayOfNumber
 } from '@dfinity/utils';
 import { get } from 'svelte/store';
-import { createAgent } from '$core/actors/agents.ic';
-import { AnonymousIdentity } from '@dfinity/agent';
-import { ICP_LEDGER_CANISTER_ID } from '$core/constants/app.constants';
 
 interface IcrcSignerInit {
 	// TODO: if we provide an opinionated lib, maybe acceptMethods should be fixed?
 	acceptMethods: IcrcWalletSupportedMethodType[];
 	onRequestPermissions: (scopes: IcrcWalletScopesArrayType) => void;
-	onCallCanister: (params: { message: Result; callParams: Pick<IcrcWalletCallCanisterParamsType, "arg" | "method">}) => void;
+	onCallCanister: (params: {
+		message: Result;
+		callParams: Pick<IcrcWalletCallCanisterParamsType, 'arg' | 'method'>;
+	}) => void;
 }
 
 export class IcrcSigner {
@@ -57,7 +60,10 @@ export class IcrcSigner {
 
 	readonly #acceptMethods: IcrcWalletSupportedMethodType[];
 	readonly #callbackOnRequestPermissions: (scopes: IcrcWalletScopesArrayType) => void;
-	readonly #callbackOnCallCanister: (params: { message: Result; callParams: Pick<IcrcWalletCallCanisterParamsType, "arg" | "method"> } ) => void;
+	readonly #callbackOnCallCanister: (params: {
+		message: Result;
+		callParams: Pick<IcrcWalletCallCanisterParamsType, 'arg' | 'method'>;
+	}) => void;
 
 	private constructor({ acceptMethods, onRequestPermissions, onCallCanister }: IcrcSignerInit) {
 		this.#acceptMethods = acceptMethods;
@@ -156,7 +162,7 @@ export class IcrcSigner {
 			method === 'icrc2_approve' ? this.approveConsentMessage : this.greetingsConsentMessage;
 		const message = await fn(params);
 
-		this.#callbackOnCallCanister({ message, callParams: {arg, method} });
+		this.#callbackOnCallCanister({ message, callParams: { arg, method } });
 	}
 
 	private greetingsConsentMessage = async (
@@ -281,15 +287,13 @@ export class IcrcSigner {
 	};
 
 	approve = async ({ identity, arg }: { identity: OptionIdentity; arg: IcrcBlobType }) => {
-		const params = await fromArray<Icrc2ApproveRequest>(
-			arrayOfNumberToUint8Array(arg)
-		);
+		const params = await fromArray<Icrc2ApproveRequest>(arrayOfNumberToUint8Array(arg));
 
 		const agent = await createAgent({ identity: identity ?? new AnonymousIdentity() });
 
 		const { icrc2Approve } = LedgerCanister.create({
 			agent,
-			canisterId: ICP_LEDGER_CANISTER_ID,
+			canisterId: ICP_LEDGER_CANISTER_ID
 		});
 
 		const blockIndex = await icrc2Approve(params);
@@ -297,7 +301,7 @@ export class IcrcSigner {
 		console.log(blockIndex);
 
 		// TODO: return block index
-	}
+	};
 
 	private onMessage = async ({
 		data,
