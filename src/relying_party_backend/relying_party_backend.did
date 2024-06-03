@@ -1,1 +1,2 @@
-service : { greet : (text) -> (text) query }
+type Account = record { owner : principal; subaccount : opt blob };
+service : { greet : (text) -> (text) query; transfer : (Account, nat) -> () }
