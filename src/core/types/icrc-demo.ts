@@ -28,3 +28,5 @@ const DummyResponse = z.object({
 });
 
 export const IcrcWalletGreetingsResponse = inferRpcResponse(DummyResponse);
+
+export type IcrcWalletGreetingsResponseType = z.infer<typeof IcrcWalletGreetingsResponse>;

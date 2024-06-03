@@ -19,7 +19,8 @@ import {
 } from '$core/types/icrc';
 import {
 	IcrcWalletGreetingsResponse,
-	type IcrcWalletGreetingsRequestType
+	type IcrcWalletGreetingsRequestType,
+	type IcrcWalletGreetingsResponseType
 } from '$core/types/icrc-demo';
 import { JSON_RPC_VERSION_2, RpcRequest } from '$core/types/rpc';
 import { popupTopRight } from '$core/utils/window.utils';
@@ -128,8 +129,14 @@ export class IcrcWallet {
 		});
 	}
 
-	greetings = ({ account }: { account: IcrcAccount }): Promise<string> => {
-		return new Promise<string>((resolve) => {
+	private callCanister = <T>({
+		account,
+		parse
+	}: {
+		account: IcrcAccount;
+		parse: (data: Partial<IcrcWalletNotificationType>) => T;
+	}): Promise<T> => {
+		return new Promise<T>((resolve) => {
 			const popup = window.open(
 				'http://localhost:5174',
 				'walletWindow',
@@ -168,24 +175,29 @@ export class IcrcWallet {
 					return;
 				}
 
-				console.log(data);
-
-				const { result } = IcrcWalletGreetingsResponse.parse(data);
-
-				// TODO: handle error
-				assertNonNullish(result);
-
 				// TODO: I'm not convinced by this pattern. Really handy but, not beautiful
 				popup?.close();
 
 				window.removeEventListener('message', onMessage);
 
-				resolve(result.message);
+				resolve(parse(data));
 			};
 
 			// TODO: create popup after registering this event
 			window.addEventListener('message', onMessage);
 		});
+	};
+
+	greetings = async (params: { account: IcrcAccount }): Promise<string> => {
+		const { result } = await this.callCanister({
+			...params,
+			parse: (data): IcrcWalletGreetingsResponseType => IcrcWalletGreetingsResponse.parse(data)
+		});
+
+		// TODO: handle error
+		assertNonNullish(result);
+
+		return result.message;
 	};
 
 	get accounts(): IcrcAccount[] | undefined {
