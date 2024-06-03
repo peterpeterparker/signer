@@ -1,7 +1,14 @@
-import { ICP_LEDGER_CANISTER_ID, WALLET_BACKEND_CANISTER_ID } from '$core/constants/app.constants';
+import {
+	ICP_LEDGER_CANISTER_ID,
+	RELYING_PARTY_BACKEND_CANISTER_ID,
+	WALLET_BACKEND_CANISTER_ID
+} from '$core/constants/app.constants';
 import type { OptionIdentity } from '$core/types/identity';
 import type { _SERVICE as ICPLedgerActor } from '$declarations/icp_ledger/icp_ledger.did';
 import { idlFactory as idlFactoryICPLedger } from '$declarations/icp_ledger/icp_ledger.factory.did';
+import type { _SERVICE as RelyingPartyBackendActor } from '$declarations/relying_party_backend/relying_party_backend.did';
+import { idlFactory as idlCertifiedFactoryRelyingPartyBackend } from '$declarations/relying_party_backend/relying_party_backend.factory.certified.did';
+import { idlFactory as idlFactoryRelyingPartyBackend } from '$declarations/relying_party_backend/relying_party_backend.factory.did';
 import type { _SERVICE as WalletBackendActor } from '$declarations/wallet_backend/wallet_backend.did';
 import { idlFactory as idlCertifiedFactoryWalletBackend } from '$declarations/wallet_backend/wallet_backend.factory.certified.did';
 import { idlFactory as idlFactoryWalletBackend } from '$declarations/wallet_backend/wallet_backend.factory.did';
@@ -17,8 +24,14 @@ import type { Principal } from '@dfinity/principal';
 import { isNullish } from '@dfinity/utils';
 import { getAgent } from './agents.ic';
 
-let actors: { walletBackend?: WalletBackendActor; icpLedger?: ICPLedgerActor } | undefined | null =
-	undefined;
+let actors:
+	| {
+			walletBackend?: WalletBackendActor;
+			relyingPartyBackend?: RelyingPartyBackendActor;
+			icpLedger?: ICPLedgerActor;
+	  }
+	| undefined
+	| null = undefined;
 
 export const getWalletBackendActor = async ({
 	identity: actorIdentity,
@@ -47,6 +60,37 @@ export const getWalletBackendActor = async ({
 	}
 
 	return walletBackend;
+};
+
+export const getRelyingPartyBackendActor = async ({
+	identity: actorIdentity,
+	certified = true
+}: {
+	identity: OptionIdentity;
+	certified?: boolean;
+}): Promise<RelyingPartyBackendActor> => {
+	const identity = actorIdentity ?? new AnonymousIdentity();
+
+	const { relyingPartyBackend } = actors ?? { relyingPartyBackend: undefined };
+
+	if (isNullish(relyingPartyBackend)) {
+		const actor = await createActor<RelyingPartyBackendActor>({
+			canisterId: RELYING_PARTY_BACKEND_CANISTER_ID,
+			idlFactory: certified
+				? idlCertifiedFactoryRelyingPartyBackend
+				: idlFactoryRelyingPartyBackend,
+			identity
+		});
+
+		actors = {
+			...(actors ?? {}),
+			relyingPartyBackend: actor
+		};
+
+		return actor;
+	}
+
+	return relyingPartyBackend;
 };
 
 export const getICPLedgerActor = async ({

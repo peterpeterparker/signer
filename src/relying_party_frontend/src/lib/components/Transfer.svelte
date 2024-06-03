@@ -7,6 +7,7 @@
 	import { Principal } from '@dfinity/principal';
 	import WalletAction from '$lib/components/WalletAction.svelte';
 	import Balance from '$core/components/Balance.svelte';
+	import { transfer } from '$core/api/relying-party-backend.api';
 
 	type Props = {
 		wallet: IcrcWallet | undefined;
@@ -32,14 +33,20 @@
 
 		const account = $state.snapshot(accounts[0]);
 
+		let amount = 5_000_000_000n;
+
 		const spender: Icrc1Account = {
 			owner: Principal.fromText(RELYING_PARTY_BACKEND_CANISTER_ID),
 			subaccount: toNullable(principalToSubAccount($authStore.identity.getPrincipal()))
 		};
 
-		await wallet?.approve({ account, spender });
+		await wallet?.approve({ account, spender, amount });
 
-		// TODO: transfer
+		await transfer({
+			identity: $authStore.identity,
+			amount,
+			account: spender
+		});
 
 		await balance?.reload();
 	};

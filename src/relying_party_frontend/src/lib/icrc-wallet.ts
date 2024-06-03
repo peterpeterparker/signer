@@ -208,14 +208,16 @@ export class IcrcWallet {
 
 	approve = async ({
 		account,
-		spender
+		spender,
+		amount
 	}: {
 		account: IcrcAccount;
 		spender: Icrc1Account;
+		amount: bigint;
 	}): Promise<bigint> => {
 		const arg: Icrc2ApproveRequest = {
 			spender,
-			amount: BigInt(5_000_000_000),
+			amount,
 			expires_at: nowInBigIntNanoSeconds() + 5n * NANO_SECONDS_IN_MINUTE
 		};
 
