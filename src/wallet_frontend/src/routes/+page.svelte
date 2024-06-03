@@ -94,7 +94,7 @@
 	>
 		<p class="font-bold">Approve the following action?</p>
 
-		<p class="text-sm">{displayMessage}</p>
+		<p class="text-sm break-words">{displayMessage}</p>
 
 		<Approve>Approve</Approve>
 	</form>
