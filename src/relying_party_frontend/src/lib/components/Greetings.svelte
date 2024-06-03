@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { walletGreet } from '$core/api/backend.api';
+	import { walletGreet } from '$core/api/wallet-backend.api';
 	import { IcrcWallet } from '$lib/icrc-wallet';
 	import { assertNonNullish } from '@dfinity/utils';
 	import { authStore } from '$core/stores/auth.store';

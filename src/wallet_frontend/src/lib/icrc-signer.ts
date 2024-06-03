@@ -1,5 +1,5 @@
 import { createAgent } from '$core/actors/agents.ic';
-import { walletConsentMessage, walletGreet } from '$core/api/backend.api';
+import { walletConsentMessage, walletGreet } from '$core/api/wallet-backend.api';
 import { icpLedgerConsentMessage } from '$core/api/icp-ledger.api';
 import { ICP_LEDGER_CANISTER_ID } from '$core/constants/app.constants';
 import { authStore } from '$core/stores/auth.store';
