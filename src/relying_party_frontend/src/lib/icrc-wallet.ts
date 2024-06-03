@@ -11,6 +11,7 @@ import {
 	IcrcWalletNotification,
 	IcrcWalletPermissionsResponse,
 	type IcrcGetAccountArrayType,
+	type IcrcWalletCallCanisterParamsType,
 	type IcrcWalletCallCanisterRequestType,
 	type IcrcWalletGetAccountsRequestType,
 	type IcrcWalletNotificationType,
@@ -130,10 +131,10 @@ export class IcrcWallet {
 	}
 
 	private callCanister = <T>({
-		account,
+		params,
 		parse
 	}: {
-		account: IcrcAccount;
+		params: IcrcWalletCallCanisterParamsType;
 		parse: (data: Partial<IcrcWalletNotificationType>) => T;
 	}): Promise<T> => {
 		return new Promise<T>((resolve) => {
@@ -161,14 +162,7 @@ export class IcrcWallet {
 					const msg: IcrcWalletCallCanisterRequestType = {
 						jsonrpc: JSON_RPC_VERSION_2,
 						method: ICRC49_CALL_CANISTER,
-						params: {
-							canisterId: WALLET_BACKEND_CANISTER_ID,
-							sender: encodeIcrcAccount(account),
-							method: 'greet',
-							arg: uint8ArrayToArrayOfNumber(
-								new Uint8Array(IDL.encode([IDL.Text], ['Awesome Bobby']))
-							)
-						}
+						params
 					};
 
 					popup?.postMessage(msg, { targetOrigin: this.#walletOrigin });
@@ -188,9 +182,14 @@ export class IcrcWallet {
 		});
 	};
 
-	greetings = async (params: { account: IcrcAccount }): Promise<string> => {
+	greetings = async ({ account }: { account: IcrcAccount }): Promise<string> => {
 		const { result } = await this.callCanister({
-			...params,
+			params: {
+				canisterId: WALLET_BACKEND_CANISTER_ID,
+				sender: encodeIcrcAccount(account),
+				method: 'greet',
+				arg: uint8ArrayToArrayOfNumber(new Uint8Array(IDL.encode([IDL.Text], ['Awesome Bobby'])))
+			},
 			parse: (data): IcrcWalletGreetingsResponseType => IcrcWalletGreetingsResponse.parse(data)
 		});
 
