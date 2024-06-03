@@ -1,4 +1,5 @@
 import { walletConsentMessage, walletGreet } from '$core/api/backend.api';
+import { icpLedgerConsentMessage } from '$core/api/icp-ledger.api';
 import { authStore } from '$core/stores/auth.store';
 import {
 	ICRC25_REQUEST_PERMISSIONS,
@@ -23,14 +24,21 @@ import {
 import { IcrcWalletGreetingsResponse } from '$core/types/icrc-demo';
 import type { OptionIdentity } from '$core/types/identity';
 import { JSON_RPC_VERSION_2 } from '$core/types/rpc';
+import { fromArray } from '$core/utils/did.utils';
+import type {
+	ApproveArgs as ApproveArgsType,
+	icrc21_consent_message_response
+} from '$declarations/icp_ledger/icp_ledger.did';
 import type { Result } from '$declarations/wallet_backend/wallet_backend.did';
 import { IDL } from '@dfinity/candid';
+import type { Icrc2ApproveRequest } from '@dfinity/ledger-icp';
 import {
 	arrayOfNumberToUint8Array,
 	assertNonNullish,
 	isNullish,
 	nonNullish,
-	toNullable
+	toNullable,
+	uint8ArrayToArrayOfNumber
 } from '@dfinity/utils';
 import { get } from 'svelte/store';
 
@@ -38,7 +46,7 @@ interface IcrcSignerInit {
 	// TODO: if we provide an opinionated lib, maybe acceptMethods should be fixed?
 	acceptMethods: IcrcWalletSupportedMethodType[];
 	onRequestPermissions: (scopes: IcrcWalletScopesArrayType) => void;
-	onGreetings: (params: { message: Result; arg: IcrcBlobType }) => void;
+	onCallCanister: (params: { message: Result; arg: IcrcBlobType }) => void;
 }
 
 export class IcrcSigner {
@@ -46,12 +54,12 @@ export class IcrcSigner {
 
 	readonly #acceptMethods: IcrcWalletSupportedMethodType[];
 	readonly #callbackOnRequestPermissions: (scopes: IcrcWalletScopesArrayType) => void;
-	readonly #callbackOnGreetings: (params: { message: Result; arg: IcrcBlobType }) => void;
+	readonly #callbackOnCallCanister: (params: { message: Result; arg: IcrcBlobType }) => void;
 
-	private constructor({ acceptMethods, onRequestPermissions, onGreetings }: IcrcSignerInit) {
+	private constructor({ acceptMethods, onRequestPermissions, onCallCanister }: IcrcSignerInit) {
 		this.#acceptMethods = acceptMethods;
 		this.#callbackOnRequestPermissions = onRequestPermissions;
-		this.#callbackOnGreetings = onGreetings;
+		this.#callbackOnCallCanister = onCallCanister;
 
 		window.addEventListener('message', this.onMessage);
 	}
@@ -133,7 +141,7 @@ export class IcrcSigner {
 		window.opener.postMessage(msg, { targetOrigin: this.#walletOrigin });
 	}
 
-	private async onGreetings(params: IcrcWalletCallCanisterParamsType | undefined) {
+	private async onCallCanister(params: IcrcWalletCallCanisterParamsType | undefined) {
 		// TODO: handle error
 		assertNonNullish(params);
 
@@ -141,11 +149,22 @@ export class IcrcSigner {
 
 		const { arg, method } = params;
 
-		const message = await walletConsentMessage({
+		const fn =
+			method === 'icrc2_approve' ? this.approveConsentMessage : this.greetingsConsentMessage;
+		const message = await fn(params);
+
+		console.log('MEssage->', message, method);
+
+		this.#callbackOnCallCanister({ message, arg });
+	}
+
+	private greetingsConsentMessage = async (
+		params: IcrcWalletCallCanisterParamsType
+	): Promise<Result> => {
+		return walletConsentMessage({
 			identity: get(authStore).identity,
 			args: {
-				arg,
-				method,
+				...params,
 				user_preferences: {
 					metadata: {
 						language: 'en'
@@ -154,9 +173,66 @@ export class IcrcSigner {
 				}
 			}
 		});
+	};
 
-		this.#callbackOnGreetings({ message, arg });
-	}
+	private approveConsentMessage = async ({
+		arg: jsArg,
+		...params
+	}: IcrcWalletCallCanisterParamsType): Promise<icrc21_consent_message_response> => {
+		// TODO: should we use JS or Did args?
+		const { spender, amount, expires_at } = await fromArray<Icrc2ApproveRequest>(
+			arrayOfNumberToUint8Array(jsArg)
+		);
+
+		const arg: ApproveArgsType = {
+			spender,
+			amount,
+			expires_at: toNullable(expires_at),
+			fee: toNullable(),
+			memo: toNullable(),
+			from_subaccount: toNullable(),
+			created_at_time: toNullable(),
+			expected_allowance: toNullable()
+		};
+
+		// TODO: Candid IDL JS does not expose those stuffs. What do we do?
+		const SubAccount = IDL.Vec(IDL.Nat8);
+		const Icrc1Timestamp = IDL.Nat64;
+		const Icrc1Tokens = IDL.Nat;
+		const Account = IDL.Record({
+			owner: IDL.Principal,
+			subaccount: IDL.Opt(SubAccount)
+		});
+
+		const ApproveArgs = IDL.Record({
+			fee: IDL.Opt(Icrc1Tokens),
+			memo: IDL.Opt(IDL.Vec(IDL.Nat8)),
+			from_subaccount: IDL.Opt(SubAccount),
+			created_at_time: IDL.Opt(Icrc1Timestamp),
+			amount: Icrc1Tokens,
+			expected_allowance: IDL.Opt(Icrc1Tokens),
+			expires_at: IDL.Opt(Icrc1Timestamp),
+			spender: Account
+		});
+
+		const encodedArg = uint8ArrayToArrayOfNumber(new Uint8Array(IDL.encode([ApproveArgs], [arg])));
+
+		// TODO: does not work, error: Consent message is not available
+
+		return icpLedgerConsentMessage({
+			identity: get(authStore).identity,
+			args: {
+				arg: encodedArg,
+				...params,
+				user_preferences: {
+					metadata: {
+						language: 'en'
+					},
+					device_spec: toNullable()
+				}
+			}
+		});
+	};
 
 	private onGetAccounts() {
 		const owner = get(authStore)?.identity?.getPrincipal();
@@ -235,7 +311,7 @@ export class IcrcSigner {
 				this.onGetAccounts();
 				break;
 			case ICRC49_CALL_CANISTER:
-				await this.onGreetings(data?.params);
+				await this.onCallCanister(data?.params);
 				break;
 		}
 	};

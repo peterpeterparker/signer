@@ -34,7 +34,7 @@
 
 				scopes = s;
 			},
-			onGreetings: ({ message, arg: params }: { message: Result; arg: IcrcBlobType }) => {
+			onCallCanister: ({ message, arg: params }: { message: Result; arg: IcrcBlobType }) => {
 				// TODO: happy path
 				if ('Err' in message) {
 					throw new Error('Error consent message');
