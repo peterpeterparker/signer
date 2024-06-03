@@ -72,8 +72,6 @@ export class IcrcWallet {
 			let permissions: IcrcWalletScopesType | undefined = undefined;
 
 			const onMessage = ({ data, origin }: MessageEvent<Partial<IcrcWalletNotificationType>>) => {
-				console.log(data, origin);
-
 				if (nonNullish(walletOrigin) && walletOrigin !== origin) {
 					// TODO
 					throw new Error('Invalid origin');
@@ -218,7 +216,7 @@ export class IcrcWallet {
 		const arg: Icrc2ApproveRequest = {
 			spender,
 			amount,
-			expires_at: nowInBigIntNanoSeconds() + 5n * NANO_SECONDS_IN_MINUTE
+			expires_at: nowInBigIntNanoSeconds() + 5n * NANO_SECONDS_IN_MINUTE,
 		};
 
 		const { result } = await this.callCanister({

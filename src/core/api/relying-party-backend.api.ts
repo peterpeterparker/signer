@@ -4,15 +4,13 @@ import type { OptionIdentity } from '../types/identity';
 
 export const transfer = async ({
 	identity,
-	account,
+	from,
 	amount
 }: {
 	identity: OptionIdentity;
-	account: Account;
+	from: Account;
 	amount: bigint;
 }): Promise<void> => {
-	console.log(account);
-
 	const { transfer } = await getRelyingPartyBackendActor({ identity });
-	await transfer(account, amount);
+	await transfer(from, amount);
 };

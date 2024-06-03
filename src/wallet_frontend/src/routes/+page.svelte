@@ -34,8 +34,6 @@
 		signer = IcrcSigner.init({
 			acceptMethods: [ICRC27_GET_ACCOUNTS, ICRC49_CALL_CANISTER],
 			onRequestPermissions: (s) => {
-				console.log(s);
-
 				scopes = s;
 			},
 			onCallCanister: ({

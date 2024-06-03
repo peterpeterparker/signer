@@ -8,6 +8,7 @@
 	import WalletAction from '$lib/components/WalletAction.svelte';
 	import Balance from '$core/components/Balance.svelte';
 	import { transfer } from '$core/api/relying-party-backend.api';
+	import { decodeIcrcAccount, encodeIcrcAccount } from '@dfinity/ledger-icrc';
 
 	type Props = {
 		wallet: IcrcWallet | undefined;
@@ -31,7 +32,7 @@
 	const onclickApprove = async () => {
 		assertNonNullish($authStore.identity);
 
-		const account = $state.snapshot(accounts[0]);
+		const from = $state.snapshot(accounts[0]);
 
 		let amount = 5_000_000_000n;
 
@@ -40,12 +41,15 @@
 			subaccount: toNullable(principalToSubAccount($authStore.identity.getPrincipal()))
 		};
 
-		await wallet?.approve({ account, spender, amount });
+		await wallet?.approve({ account: from, spender, amount });
 
 		await transfer({
 			identity: $authStore.identity,
 			amount,
-			account: spender
+			from: {
+				owner: from.owner,
+				subaccount: toNullable(from.subaccount)
+			}
 		});
 
 		await balance?.reload();
