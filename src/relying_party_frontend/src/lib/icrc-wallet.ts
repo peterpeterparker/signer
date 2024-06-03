@@ -216,7 +216,7 @@ export class IcrcWallet {
 		const arg: Icrc2ApproveRequest = {
 			spender,
 			amount,
-			expires_at: nowInBigIntNanoSeconds() + 5n * NANO_SECONDS_IN_MINUTE,
+			expires_at: nowInBigIntNanoSeconds() + 5n * NANO_SECONDS_IN_MINUTE
 		};
 
 		const { result } = await this.callCanister({

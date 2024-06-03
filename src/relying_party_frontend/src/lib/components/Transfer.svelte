@@ -8,7 +8,6 @@
 	import WalletAction from '$lib/components/WalletAction.svelte';
 	import Balance from '$core/components/Balance.svelte';
 	import { transfer } from '$core/api/relying-party-backend.api';
-	import { decodeIcrcAccount, encodeIcrcAccount } from '@dfinity/ledger-icrc';
 
 	type Props = {
 		wallet: IcrcWallet | undefined;

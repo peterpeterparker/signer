@@ -1,16 +1,14 @@
+use candid::Nat;
 use candid::Principal;
 use ic_cdk::{call, caller, export_candid, id, query, trap, update};
-use icrc_ledger_types::icrc1::transfer::{BlockIndex};
-use icrc_ledger_types::icrc2::transfer_from::{TransferFromArgs, TransferFromError};
-use candid::{Nat};
 use icrc_ledger_types::icrc1::account::{Account, Subaccount};
+use icrc_ledger_types::icrc1::transfer::BlockIndex;
+use icrc_ledger_types::icrc2::transfer_from::{TransferFromArgs, TransferFromError};
 
 #[query]
 fn greet(name: String) -> String {
     format!("Hello, {}!", name)
 }
-
-
 
 #[update]
 async fn transfer(from: Account, amount: Nat) {
@@ -24,16 +22,20 @@ async fn transfer(from: Account, amount: Nat) {
         spender_subaccount: None,
         to: Account {
             owner: id(),
-            subaccount: Some(principal_to_subaccount(&caller()))
+            subaccount: Some(principal_to_subaccount(&caller())),
         },
-        from
+        from,
     };
 
     let (result,): (Result<BlockIndex, TransferFromError>,) =
-        call::<(TransferFromArgs,), (Result<BlockIndex, TransferFromError>,)>(ledger_canister_id, "icrc2_transfer_from", (args,))
-            .await
-            .map_err(|(_, e)| e)
-            .unwrap();
+        call::<(TransferFromArgs,), (Result<BlockIndex, TransferFromError>,)>(
+            ledger_canister_id,
+            "icrc2_transfer_from",
+            (args,),
+        )
+        .await
+        .map_err(|(_, e)| e)
+        .unwrap();
 
     match result {
         Ok(_block_index) => (),
@@ -58,27 +60,33 @@ impl ToStringHelper for TransferFromError {
         match self {
             TransferFromError::BadFee { expected_fee } => {
                 format!("BadFee: expected fee is {}", expected_fee)
-            },
+            }
             TransferFromError::BadBurn { min_burn_amount } => {
                 format!("BadBurn: minimum burn amount is {}", min_burn_amount)
-            },
+            }
             TransferFromError::InsufficientFunds { balance } => {
                 format!("InsufficientFunds: balance is {}", balance)
-            },
+            }
             TransferFromError::InsufficientAllowance { allowance } => {
                 format!("InsufficientAllowance: allowance is {}", allowance)
-            },
+            }
             TransferFromError::TooOld => "TooOld".to_string(),
             TransferFromError::CreatedInFuture { ledger_time } => {
                 format!("CreatedInFuture: ledger time is {}", ledger_time)
-            },
+            }
             TransferFromError::Duplicate { duplicate_of } => {
                 format!("Duplicate: duplicate of {}", duplicate_of)
-            },
+            }
             TransferFromError::TemporarilyUnavailable => "TemporarilyUnavailable".to_string(),
-            TransferFromError::GenericError { error_code, message } => {
-                format!("GenericError: error code {}, message: {}", error_code, message)
-            },
+            TransferFromError::GenericError {
+                error_code,
+                message,
+            } => {
+                format!(
+                    "GenericError: error code {}, message: {}",
+                    error_code, message
+                )
+            }
         }
     }
 }
