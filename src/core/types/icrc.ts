@@ -117,3 +117,22 @@ export const IcrcWalletGetAccountsRequest = z
 	.merge(RpcRequest.omit({ method: true, params: true }));
 
 export type IcrcWalletGetAccountsRequestType = z.infer<typeof IcrcWalletGetAccountsRequest>;
+
+// TODO: regex for canisterId and principal?
+export const IcrcWalletCallCanisterParams = z.object({
+	canisterId: z.string(),
+	sender: z.string(),
+	method: z.string(),
+	arg: IcrcBlob
+});
+
+export type IcrcWalletCallCanisterParamsType = z.infer<typeof IcrcWalletCallCanisterParams>;
+
+export const IcrcWalletCallCanisterRequest = z
+	.object({
+		method: IcrcWalletMethod.extract([ICRC49_CALL_CANISTER]),
+		params: IcrcWalletCallCanisterParams
+	})
+	.merge(RpcRequest.omit({ method: true, params: true }));
+
+export type IcrcWalletCallCanisterRequestType = z.infer<typeof IcrcWalletCallCanisterRequest>;

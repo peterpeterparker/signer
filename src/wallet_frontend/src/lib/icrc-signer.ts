@@ -10,6 +10,8 @@ import {
 	IcrcWalletGetAccountsResponse,
 	IcrcWalletPermissionsResponse,
 	type IcrcBlobType,
+	type IcrcWalletCallCanisterParamsType,
+	type IcrcWalletCallCanisterRequestType,
 	type IcrcWalletGetAccountsRequestType,
 	type IcrcWalletNotificationType,
 	type IcrcWalletPermissionsRequestType,
@@ -18,11 +20,7 @@ import {
 	type IcrcWalletStandardsRequestType,
 	type IcrcWalletSupportedMethodType
 } from '$core/types/icrc';
-import {
-	IcrcWalletGreetingsResponse,
-	type IcrcWalletGreetingsParamsType,
-	type IcrcWalletGreetingsRequestType
-} from '$core/types/icrc-demo';
+import { IcrcWalletGreetingsResponse } from '$core/types/icrc-demo';
 import type { OptionIdentity } from '$core/types/identity';
 import { JSON_RPC_VERSION_2 } from '$core/types/rpc';
 import type { Result } from '$declarations/wallet_backend/wallet_backend.did';
@@ -135,7 +133,7 @@ export class IcrcSigner {
 		window.opener.postMessage(msg, { targetOrigin: this.#walletOrigin });
 	}
 
-	private async onGreetings(params: IcrcWalletGreetingsParamsType | undefined) {
+	private async onGreetings(params: IcrcWalletCallCanisterParamsType | undefined) {
 		// TODO: handle error
 		assertNonNullish(params);
 
@@ -213,7 +211,7 @@ export class IcrcSigner {
 			| IcrcWalletPermissionsRequestType
 			| IcrcWalletStandardsRequestType
 			| IcrcWalletGetAccountsRequestType
-			| IcrcWalletGreetingsRequestType
+			| IcrcWalletCallCanisterRequestType
 		>
 	>) => {
 		// TODO: this is ugly

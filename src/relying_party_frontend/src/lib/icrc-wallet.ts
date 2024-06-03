@@ -11,6 +11,7 @@ import {
 	IcrcWalletNotification,
 	IcrcWalletPermissionsResponse,
 	type IcrcGetAccountArrayType,
+	type IcrcWalletCallCanisterRequestType,
 	type IcrcWalletGetAccountsRequestType,
 	type IcrcWalletNotificationType,
 	type IcrcWalletPermissionsRequestType,
@@ -19,7 +20,6 @@ import {
 } from '$core/types/icrc';
 import {
 	IcrcWalletGreetingsResponse,
-	type IcrcWalletGreetingsRequestType,
 	type IcrcWalletGreetingsResponseType
 } from '$core/types/icrc-demo';
 import { JSON_RPC_VERSION_2, RpcRequest } from '$core/types/rpc';
@@ -158,7 +158,7 @@ export class IcrcWallet {
 					const _notification = IcrcWalletNotification.parse(data);
 
 					// TODO: id with nanoid back and forth
-					const msg: IcrcWalletGreetingsRequestType = {
+					const msg: IcrcWalletCallCanisterRequestType = {
 						jsonrpc: JSON_RPC_VERSION_2,
 						method: ICRC49_CALL_CANISTER,
 						params: {
