@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { assertNonNullish, createAgent } from '@dfinity/utils';
-	import { authStore } from '../stores/auth.store';
+	import { createAgent } from '@dfinity/utils';
 	import { AccountIdentifier, LedgerCanister } from '@dfinity/ledger-icp';
 	import { ICP_LEDGER_CANISTER_ID } from '../constants/app.constants';
 	import { formatE8sICP } from '../utils/icp.utils';
+	import { AnonymousIdentity } from '@dfinity/agent';
 
 	type Props = {
 		accountIdentifier: AccountIdentifier;
@@ -11,13 +11,11 @@
 
 	let { accountIdentifier } = $props<Props>();
 
-	let balance = 0n;
+	let balance = $state(0n);
 
 	const loadBalance = async () => {
-		assertNonNullish($authStore.identity);
-
 		const agent = await createAgent({
-			identity: $authStore.identity,
+			identity: new AnonymousIdentity(),
 			host: 'http://localhost:4943',
 			fetchRootKey: true
 		});
@@ -27,7 +25,7 @@
 			canisterId: ICP_LEDGER_CANISTER_ID
 		});
 
-		balance = await accountBalance({ accountIdentifier });
+		balance = await accountBalance({ accountIdentifier, certified: false });
 	};
 
 	$effect(() => {
