@@ -17,7 +17,7 @@ import type { Principal } from '@dfinity/principal';
 import { isNullish } from '@dfinity/utils';
 import { getAgent } from './agents.ic';
 
-let actors: { backend?: WalletBackendActor; icpLedger?: ICPLedgerActor } | undefined | null =
+let actors: { walletBackend?: WalletBackendActor; icpLedger?: ICPLedgerActor } | undefined | null =
 	undefined;
 
 export const getWalletBackendActor = async ({
@@ -29,9 +29,9 @@ export const getWalletBackendActor = async ({
 }): Promise<WalletBackendActor> => {
 	const identity = actorIdentity ?? new AnonymousIdentity();
 
-	const { backend } = actors ?? { backend: undefined };
+	const { walletBackend } = actors ?? { walletBackend: undefined };
 
-	if (isNullish(backend)) {
+	if (isNullish(walletBackend)) {
 		const actor = await createActor<WalletBackendActor>({
 			canisterId: WALLET_BACKEND_CANISTER_ID,
 			idlFactory: certified ? idlCertifiedFactoryWalletBackend : idlFactoryWalletBackend,
@@ -40,13 +40,13 @@ export const getWalletBackendActor = async ({
 
 		actors = {
 			...(actors ?? {}),
-			backend: actor
+			walletBackend: actor
 		};
 
 		return actor;
 	}
 
-	return backend;
+	return walletBackend;
 };
 
 export const getICPLedgerActor = async ({
