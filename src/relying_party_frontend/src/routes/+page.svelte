@@ -7,6 +7,7 @@
 	import Button from '$core/components/Button.svelte';
 	import { fade } from 'svelte/transition';
 	import Transfer from '$lib/components/Transfer.svelte';
+	import UserId from '$core/components/UserId.svelte';
 
 	let wallet: IcrcWallet | undefined = $state(undefined);
 
@@ -17,11 +18,13 @@
 	let accounts = $derived(wallet?.accounts ?? []);
 </script>
 
+<UserId />
+
 {#if isNullish(wallet)}
 	<Button {onclick}>Connect Wallet</Button>
 {:else}
 	<div in:fade>
-		<p class="font-bold mt-2">Accounts:</p>
+		<p class="font-bold text-sm mt-2">Wallet Accounts:</p>
 
 		<ul>
 			{#each accounts as account}

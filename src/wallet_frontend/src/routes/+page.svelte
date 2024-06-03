@@ -5,7 +5,6 @@
 	import {
 		ICRC27_GET_ACCOUNTS,
 		ICRC49_CALL_CANISTER,
-		type IcrcBlobType,
 		type IcrcWalletCallCanisterParamsType,
 		type IcrcWalletScopesArrayType
 	} from '$core/types/icrc';
@@ -14,6 +13,9 @@
 	import type { Result } from '$declarations/wallet_backend/wallet_backend.did';
 	import Approve from '$core/components/Approve.svelte';
 	import { fade } from 'svelte/transition';
+	import Balance from '$core/components/Balance.svelte';
+	import UserId from '$core/components/UserId.svelte';
+	import { AccountIdentifier } from '@dfinity/ledger-icp';
 
 	let scopes: IcrcWalletScopesArrayType | undefined = $state(undefined);
 	let displayMessage: string | undefined = $state(undefined);
@@ -68,23 +70,34 @@
 		// TODO: happy path
 		assertNonNullish(callParams);
 
-		const {arg, method} = callParams;
+		const { arg, method } = callParams;
 
 		switch (method) {
-			case "greet": {
+			case 'greet': {
 				signer?.greetings({ identity: $authStore.identity, arg });
 				break;
 			}
-			case "icrc2_approve": {
+			case 'icrc2_approve': {
 				signer?.approve({ identity: $authStore.identity, arg });
 				break;
 			}
 		}
 	};
+
+	let accountIdentifier = $derived(
+		nonNullish($authStore.identity)
+			? AccountIdentifier.fromPrincipal({
+					principal: $authStore.identity.getPrincipal()
+				})
+			: undefined
+	);
 </script>
 
-<p class="font-bold text-sm">User ID:</p>
-<p class="text-sm"><output>{$authStore?.identity?.getPrincipal().toText() ?? ''}</output></p>
+<UserId />
+
+{#if nonNullish(accountIdentifier)}
+	<Balance {accountIdentifier} />
+{/if}
 
 {#if isNullish(scopes) && isNullish(displayMessage)}
 	<p class="animate-pulse text-sm mt-4">Communicating...</p>
