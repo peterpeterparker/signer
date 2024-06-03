@@ -1,5 +1,6 @@
 import {
-	ICP_LEDGER_CANISTER_ID, NANO_SECONDS_IN_MINUTE,
+	ICP_LEDGER_CANISTER_ID,
+	NANO_SECONDS_IN_MINUTE,
 	WALLET_BACKEND_CANISTER_ID,
 	WALLET_POPUP_HEIGHT,
 	WALLET_POPUP_WIDTH
@@ -21,8 +22,9 @@ import {
 	type IcrcWalletScopesType
 } from '$core/types/icrc';
 import {
-	IcrcApproveResponse, type IcrcApproveResponseType,
+	IcrcApproveResponse,
 	IcrcWalletGreetingsResponse,
+	type IcrcApproveResponseType,
 	type IcrcWalletGreetingsResponseType
 } from '$core/types/icrc-demo';
 import { JSON_RPC_VERSION_2, RpcRequest } from '$core/types/rpc';
