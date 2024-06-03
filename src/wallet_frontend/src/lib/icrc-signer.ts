@@ -23,7 +23,7 @@ import {
 	type IcrcWalletStandardsRequestType,
 	type IcrcWalletSupportedMethodType
 } from '$core/types/icrc';
-import { IcrcWalletGreetingsResponse } from '$core/types/icrc-demo';
+import { IcrcApproveResponse, IcrcWalletGreetingsResponse } from '$core/types/icrc-demo';
 import type { OptionIdentity } from '$core/types/identity';
 import { JSON_RPC_VERSION_2 } from '$core/types/rpc';
 import { fromArray } from '$core/utils/did.utils';
@@ -298,9 +298,17 @@ export class IcrcSigner {
 
 		const blockIndex = await icrc2Approve(params);
 
-		console.log(blockIndex);
+		// TODO: sending the message in plain without certificate is just meant for demo
+		const msg = IcrcApproveResponse.parse({
+			jsonrpc: JSON_RPC_VERSION_2,
+			result: {
+				blockIndex
+			}
+		});
 
-		// TODO: return block index
+		// TODO: walletOrigin is defined - should be saved in session
+
+		window.opener.postMessage(msg, { targetOrigin: this.#walletOrigin });
 	};
 
 	private onMessage = async ({

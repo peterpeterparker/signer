@@ -33,6 +33,10 @@
 			await loadBalance();
 		})();
 	});
+
+	export const reload = async () => {
+		await loadBalance();
+	};
 </script>
 
 <p class="font-bold text-sm">Current balance:</p>

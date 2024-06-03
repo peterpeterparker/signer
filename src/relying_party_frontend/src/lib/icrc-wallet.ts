@@ -21,6 +21,7 @@ import {
 	type IcrcWalletScopesType
 } from '$core/types/icrc';
 import {
+	IcrcApproveResponse, type IcrcApproveResponseType,
 	IcrcWalletGreetingsResponse,
 	type IcrcWalletGreetingsResponseType
 } from '$core/types/icrc-demo';
@@ -209,7 +210,7 @@ export class IcrcWallet {
 	}: {
 		account: IcrcAccount;
 		spender: Icrc1Account;
-	}): Promise<string> => {
+	}): Promise<bigint> => {
 		const arg: Icrc2ApproveRequest = {
 			spender,
 			amount: BigInt(5_000_000_000),
@@ -223,13 +224,13 @@ export class IcrcWallet {
 				method: 'icrc2_approve',
 				arg: uint8ArrayToArrayOfNumber(await toArray(arg))
 			},
-			parse: (data): IcrcWalletGreetingsResponseType => IcrcWalletGreetingsResponse.parse(data)
+			parse: (data): IcrcApproveResponseType => IcrcApproveResponse.parse(data)
 		});
 
 		// TODO: handle error
 		assertNonNullish(result);
 
-		return result.message;
+		return result.blockIndex;
 	};
 
 	get accounts(): IcrcAccount[] | undefined {

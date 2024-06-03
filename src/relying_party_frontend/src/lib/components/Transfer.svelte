@@ -25,6 +25,8 @@
 			: undefined
 	);
 
+	let balance: Balance | undefined;
+
 	const onclickApprove = async () => {
 		assertNonNullish($authStore.identity);
 
@@ -36,6 +38,10 @@
 		};
 
 		await wallet?.approve({ account, spender });
+
+		// TODO: transfer
+
+		await balance?.reload();
 	};
 </script>
 
@@ -43,7 +49,7 @@
 	<p class="font-bold">Test: ICRC Approve / Transfer From</p>
 
 	{#if nonNullish(accountIdentifier)}
-		<Balance {accountIdentifier} />
+		<Balance bind:this={balance} {accountIdentifier} />
 	{/if}
 
 	<div class="flex gap-2">
