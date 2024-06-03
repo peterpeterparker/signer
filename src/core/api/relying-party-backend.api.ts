@@ -11,7 +11,6 @@ export const transfer = async ({
 	account: Account;
 	amount: bigint;
 }): Promise<void> => {
-
 	console.log(account);
 
 	const { transfer } = await getRelyingPartyBackendActor({ identity });
