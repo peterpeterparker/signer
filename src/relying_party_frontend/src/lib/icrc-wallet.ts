@@ -1,5 +1,5 @@
 import {
-	ICP_LEDGER_CANISTER_ID,
+	ICP_LEDGER_CANISTER_ID, NANO_SECONDS_IN_MINUTE,
 	WALLET_BACKEND_CANISTER_ID,
 	WALLET_POPUP_HEIGHT,
 	WALLET_POPUP_WIDTH
@@ -213,7 +213,7 @@ export class IcrcWallet {
 		const arg: Icrc2ApproveRequest = {
 			spender,
 			amount: BigInt(5_000_000_000),
-			expires_at: nowInBigIntNanoSeconds()
+			expires_at: nowInBigIntNanoSeconds() + 5n * NANO_SECONDS_IN_MINUTE
 		};
 
 		const { result } = await this.callCanister({
