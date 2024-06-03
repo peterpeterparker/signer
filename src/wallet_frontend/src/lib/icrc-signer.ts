@@ -235,7 +235,7 @@ export class IcrcSigner {
 					metadata: {
 						language: 'en'
 					},
-					device_spec: toNullable()
+					device_spec: toNullable({ GenericDisplay: null })
 				}
 			}
 		});
