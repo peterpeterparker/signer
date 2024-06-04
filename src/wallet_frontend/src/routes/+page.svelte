@@ -56,29 +56,37 @@
 		});
 	});
 
+	let inProgress = $state(false);
+
 	const onsubmit = ($event: SubmitEvent) => {
 		$event.preventDefault();
 
 		signer?.approvePermissions($state.snapshot(scopes)!);
 	};
 
-	const onsubmitCall = ($event: SubmitEvent) => {
+	const onsubmitCall = async ($event: SubmitEvent) => {
 		$event.preventDefault();
 
-		// TODO: happy path
-		assertNonNullish(callParams);
+		inProgress = true;
 
-		const { arg, method } = callParams;
+		try {
+			// TODO: happy path
+			assertNonNullish(callParams);
 
-		switch (method) {
-			case 'greet': {
-				signer?.greetings({ identity: $authStore.identity, arg });
-				break;
+			const { arg, method } = callParams;
+
+			switch (method) {
+				case 'greet': {
+					await signer?.greetings({ identity: $authStore.identity, arg });
+					break;
+				}
+				case 'icrc2_approve': {
+					await signer?.approve({ identity: $authStore.identity, arg });
+					break;
+				}
 			}
-			case 'icrc2_approve': {
-				signer?.approve({ identity: $authStore.identity, arg });
-				break;
-			}
+		} finally {
+			inProgress = false;
 		}
 	};
 
@@ -111,7 +119,7 @@
 			{/each}
 		</ul>
 
-		<Approve>Approve</Approve>
+		<Approve {inProgress}>Approve</Approve>
 	</form>
 {/if}
 
@@ -126,6 +134,6 @@
 
 		<p class="text-sm break-words">{displayMessage}</p>
 
-		<Approve>Approve</Approve>
+		<Approve {inProgress}>Approve</Approve>
 	</form>
 {/if}

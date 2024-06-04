@@ -9,15 +9,16 @@
 		wallet: IcrcWallet | undefined;
 		onclickApprove: ($event: UIEvent) => Promise<void>;
 		children: Snippet;
+		inProgress: boolean;
 	};
 
-	let { wallet, onclickApprove, children } = $props<Props>();
+	let { wallet, onclickApprove, children, inProgress } = $props<Props>();
 
 	let disabled = $derived(
 		isNullish((wallet?.scopes ?? []).find(({ method }) => method === ICRC49_CALL_CANISTER))
 	);
 </script>
 
-<Action onclick={onclickApprove} {disabled}>
+<Action onclick={onclickApprove} {disabled} {inProgress}>
 	{@render children()}
 </Action>

@@ -29,14 +29,22 @@
 
 	let accounts = $derived(wallet?.accounts ?? []);
 
+	let inProgress = $state(false);
+
 	const onclickApprove = async () => {
-		greetings = 'Calling...';
+		inProgress = true;
 
-		const account = $state.snapshot(accounts[0]);
+		try {
+			greetings = 'Calling...';
 
-		assertNonNullish(account);
+			const account = $state.snapshot(accounts[0]);
 
-		greetings = await wallet?.greetings({ account });
+			assertNonNullish(account);
+
+			greetings = await wallet?.greetings({ account });
+		} finally {
+			inProgress = false;
+		}
 	};
 </script>
 
@@ -46,7 +54,7 @@
 	<div class="flex gap-2">
 		<Button {onclick}>Direct call</Button>
 
-		<WalletAction {wallet} {onclickApprove}>Wallet approval</WalletAction>
+		<WalletAction {wallet} {onclickApprove} {inProgress}>Wallet approval</WalletAction>
 	</div>
 
 	<div class="flex flex-col gap-2 mt-2">

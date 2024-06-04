@@ -29,42 +29,51 @@
 
 	let balance: Balance | undefined;
 
+	let inProgress = $state(false);
+
 	const onclickApprove = async () => {
-		assertNonNullish($authStore.identity);
+		inProgress = true;
 
-		const from = $state.snapshot(accounts[0]);
+		try {
+			assertNonNullish($authStore.identity);
 
-		const amount = 5_000_000n;
-		const fee = 10_000n;
+			const from = $state.snapshot(accounts[0]);
 
-		const spender: Icrc1Account = {
-			owner: Principal.fromText(RELYING_PARTY_BACKEND_CANISTER_ID),
-			subaccount: toNullable(principalToSubAccount($authStore.identity.getPrincipal()))
-		};
+			const amount = 5_000_000n;
+			const fee = 10_000n;
 
-		await wallet?.approve({ account: from, spender, amount: amount + fee });
+			const spender: Icrc1Account = {
+				owner: Principal.fromText(RELYING_PARTY_BACKEND_CANISTER_ID),
+				subaccount: toNullable(principalToSubAccount($authStore.identity.getPrincipal()))
+			};
 
-		const allowance = await icpLedgerAllowance({
-			identity: $authStore.identity,
-			account: {
-				owner: from.owner,
-				subaccount: toNullable(from.subaccount)
-			},
-			spender
-		});
+			await wallet?.approve({ account: from, spender, amount: amount + fee });
 
-		console.log('Allowance:', allowance);
+			const allowance = await icpLedgerAllowance({
+				identity: $authStore.identity,
+				account: {
+					owner: from.owner,
+					subaccount: toNullable(from.subaccount)
+				},
+				spender
+			});
 
-		await transfer({
-			identity: $authStore.identity,
-			amount,
-			from: {
-				owner: from.owner,
-				subaccount: toNullable(from.subaccount)
-			}
-		});
+			console.log('Allowance:', allowance);
 
-		await balance?.reload();
+			await transfer({
+				identity: $authStore.identity,
+				amount,
+				from: {
+					owner: from.owner,
+					subaccount: toNullable(from.subaccount)
+				}
+			});
+
+			await balance?.reload();
+		} finally {
+			inProgress = false;
+		}
+
 	};
 </script>
 
@@ -76,6 +85,6 @@
 	{/if}
 
 	<div class="flex gap-2">
-		<WalletAction {wallet} {onclickApprove}>Approve 0.5 ICP + Fee</WalletAction>
+		<WalletAction {wallet} {onclickApprove} {inProgress}>Approve 0.5 ICP + Fee</WalletAction>
 	</div>
 </div>
