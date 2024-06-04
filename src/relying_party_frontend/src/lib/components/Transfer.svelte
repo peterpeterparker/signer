@@ -69,13 +69,13 @@
 </script>
 
 <div class="bg-grey rounded-md px-4 py-6 mt-8 max-w-xl">
-	<p class="font-bold">Test: ICRC Approve / Transfer From</p>
+	<p class="font-bold mb-3">Test: ICRC Approve / Transfer From</p>
 
 	{#if nonNullish(accountIdentifier)}
 		<Balance bind:this={balance} {accountIdentifier} />
 	{/if}
 
 	<div class="flex gap-2">
-		<WalletAction {wallet} {onclickApprove}>Approve 5 ICP</WalletAction>
+		<WalletAction {wallet} {onclickApprove}>Approve 0.5 ICP + Fee</WalletAction>
 	</div>
 </div>

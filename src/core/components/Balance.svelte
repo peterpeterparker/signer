@@ -39,5 +39,8 @@
 	};
 </script>
 
+<p class="font-bold text-sm">ICP wallet address:</p>
+<p class="text-sm mb-2 break-words"><output>{accountIdentifier.toHex()}</output></p>
+
 <p class="font-bold text-sm">Current balance:</p>
-<p class="text-sm mb-2"><output>{formatE8sICP(balance)} ICP</output></p>
+<p class="text-sm mb-2 break-words"><output>{formatE8sICP(balance)} ICP</output></p>

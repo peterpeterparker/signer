@@ -26,7 +26,7 @@
 	<div in:fade>
 		<p class="font-bold text-sm mt-2">Wallet Accounts:</p>
 
-		<ul>
+		<ul class="text-sm">
 			{#each accounts as account}
 				<li>{encodeIcrcAccount(account)}</li>
 			{/each}
