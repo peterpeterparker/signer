@@ -8,6 +8,8 @@
 	import { fade } from 'svelte/transition';
 	import Transfer from '$lib/components/Transfer.svelte';
 	import UserId from '$core/components/UserId.svelte';
+	import Balance from '$core/components/Balance.svelte';
+	import { AccountIdentifier } from '@dfinity/ledger-icp';
 
 	let wallet: IcrcWallet | undefined = $state(undefined);
 
@@ -29,6 +31,8 @@
 		<ul class="text-sm">
 			{#each accounts as account}
 				<li>{encodeIcrcAccount(account)}</li>
+
+				<Balance accountIdentifier={AccountIdentifier.fromPrincipal({principal: account.owner})} />
 			{/each}
 		</ul>
 	</div>
