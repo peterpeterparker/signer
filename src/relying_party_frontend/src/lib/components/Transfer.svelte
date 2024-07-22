@@ -73,7 +73,6 @@
 		} finally {
 			inProgress = false;
 		}
-
 	};
 </script>
 

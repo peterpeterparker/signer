@@ -32,7 +32,9 @@
 			{#each accounts as account}
 				<li>{encodeIcrcAccount(account)}</li>
 
-				<Balance accountIdentifier={AccountIdentifier.fromPrincipal({principal: account.owner})} />
+				<Balance
+					accountIdentifier={AccountIdentifier.fromPrincipal({ principal: account.owner })}
+				/>
 			{/each}
 		</ul>
 	</div>
